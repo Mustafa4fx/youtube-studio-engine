@@ -17,14 +17,16 @@ async function render(spec, outDir, opts = {}) {
   await ensureSfx(sfxDir);
 
   const browser = await chromium.launch({ args: ['--no-sandbox', '--font-render-hinting=none'] });
-  const page = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
-  await page.goto('file://' + path.join(__dirname, 'stage.html'), { waitUntil: 'domcontentloaded' });
-  try { await page.waitForLoadState('networkidle', { timeout: 15000 }); } catch (e) {}
-  await page.evaluate(() => document.fonts.ready.then(() => true));
-
-  // make sure theme fonts are actually downloaded before the first frame
   const fams = Object.values(spec.theme.vars || {}).filter(v => /'/.test(v)).flatMap(v => v.match(/'([^']+)'/g) || []).map(x => x.replace(/'/g, ''));
-  await page.evaluate(async fs => { for (const f of fs) for (const w of [600, 700, 800, 900]) await document.fonts.load(`${w} 48px "${f}"`, 'عربي ABC 123').catch(() => {}); }, [...new Set(fams)]);
+  const makePage = async () => {
+    const pg = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
+    await pg.goto('file://' + path.join(__dirname, 'stage.html'), { waitUntil: 'domcontentloaded' });
+    try { await pg.waitForLoadState('networkidle', { timeout: 15000 }); } catch (e) {}
+    await pg.evaluate(() => document.fonts.ready.then(() => true));
+    // make sure theme fonts are actually downloaded before the first frame
+    await pg.evaluate(async fs => { for (const f of fs) for (const w of [600, 700, 800, 900]) await document.fonts.load(`${w} 48px "${f}"`, 'عربي ABC 123').catch(() => {}); }, [...new Set(fams)]);
+    return pg;
+  };
   const only = opts.only ? new Set(opts.only) : null;
   // voice cache + batch synthesis (6 beats per request) to stay inside the TTS request limits
   const cdir = path.join(process.env.CACHE_ROOT || (fs.existsSync('/out') ? '/out' : path.dirname(path.resolve(outDir))), 'tts-cache'); fs.mkdirSync(cdir, { recursive: true });
@@ -83,9 +85,13 @@ async function render(spec, outDir, opts = {}) {
       const ok = await geminiBatch({ texts: grp.map(x => x.b.say), voice: spec.voice, style: spec.style, outs, log, lang: spec.cloudLang || (spec.lang && spec.lang.startsWith('ar') ? 'ar-EG' : 'en-US') }).catch(e => { if (/DAILY/.test(e.message)) throw e; log('batch error ' + e.message); return false; });
       if (ok) grp.forEach((x, j) => fs.renameSync(outs[j], cacheOf(x.b))); }
   }
+  // parallel export: several browser pages render different beats at the same time
   const segs = [];
-  for (let i = 0; i < spec.beats.length; i++) {
-    if (only && !only.has(i)) continue;
+  const WORKERS = Math.max(1, Math.min(+(process.env.RENDER_WORKERS || 3), spec.beats.length));
+  const pages = await Promise.all(Array.from({ length: WORKERS }, () => makePage()));
+  let next = 0, done = 0;
+  const doBeat = async (i, page) => {
+    if (only && !only.has(i)) return;
     const beat = spec.beats[i];
     const id = String(i).padStart(3, '0');
     log(`beat ${i + 1}/${spec.beats.length}`);
@@ -143,8 +149,10 @@ async function render(spec, outDir, opts = {}) {
       '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '19', '-r', String(FPS), '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', segV);
     await sh('ffmpeg', vArgs);
     fs.rmSync(fdir, { recursive: true, force: true });
-    segs.push(segV);
-  }
+    segs[i] = segV;
+    };
+  await Promise.all(pages.map(async pg => { while (next < spec.beats.length) { const i = next++; await doBeat(i, pg); done++; } }));
+  const segsOrdered = segs.filter(Boolean); segs.length = 0; segs.push(...segsOrdered);
   await browser.close();
 
   // 4) join + loudness normalisation

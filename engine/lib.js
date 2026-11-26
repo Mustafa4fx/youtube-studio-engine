@@ -113,9 +113,22 @@ async function geminiRequest(text, voice, systemText, log, noVertex) {
   // Vertex first (no daily cap); if it can't work at all, fall back to the Gemini API key automatically
   if (!noVertex && process.env.TTS_BACKEND === 'vertex' && process.env.VERTEX_KEY && !global.__vertexDead) {
     try { return await geminiRequestInner(text, voice, systemText, log, true); }
-    catch (e) { if (/DAILY/.test(e.message)) throw e; global.__vertexDead = true; log && log('[tts] VERTEX unavailable -> using Gemini API key: ' + e.message.slice(0, 300)); }
+    catch (e) { if (/DAILY/.test(e.message)) throw e; vertexBad.clear(); vertexModel = null;
+      // only give up on Vertex for good if it's an access problem; a 400 on one text shouldn't kill it for the next texts
+      if (/ 40[34] /.test(e.message)) global.__vertexDead = true;
+      log && log('[tts] VERTEX failed for this text -> trying Gemini API key: ' + e.message.slice(0, 300)); }
   }
   return geminiRequestInner(text, voice, systemText, log, false);
+}
+const geminiBad = new Set(); let geminiListed = null;
+async function geminiTtsModels(key, log) {
+  if (geminiListed) return geminiListed;
+  try { const r = await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000', { headers: { 'x-goog-api-key': key } });
+    const j = await r.json(); const found = (j.models || []).filter(m => /tts/i.test(m.name) && (m.supportedGenerationMethods || []).includes('generateContent')).map(m => m.name.replace(/^models\//, ''));
+    const rank = n => (n.includes('pro') ? 0 : 10) - (parseFloat((n.match(/(\d+(\.\d+)?)/) || [0, 0])[1]) * 2);
+    found.sort((a, b) => rank(a) - rank(b)); if (found.length) { log && log('[tts] gemini-api models: ' + found.join(', ')); geminiListed = found; return found; }
+  } catch (e) {}
+  geminiListed = GEMINI_MODELS; return geminiListed;
 }
 async function geminiRequestInner(text, voice, systemText, log, vertex) {
   const key = vertex ? process.env.VERTEX_KEY : process.env.GEMINI_API_KEY; let last = '';
@@ -126,7 +139,7 @@ async function geminiRequestInner(text, voice, systemText, log, vertex) {
     const body = { contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { responseModalities: ['AUDIO'], speechConfig: sc } };
     if (v.sys && systemText) body.systemInstruction = { parts: [{ text: systemText }] }; return body; };
   for (let attempt = 1; attempt <= 30; attempt++) {
-    const models = vertex ? (vertexModel && !vertexBad.has(vertexModel) ? [vertexModel] : VERTEX_MODELS.filter(x => !vertexBad.has(x))) : (geminiModel ? [geminiModel] : GEMINI_MODELS);
+    const models = vertex ? (vertexModel && !vertexBad.has(vertexModel) ? [vertexModel] : VERTEX_MODELS.filter(x => !vertexBad.has(x))) : (geminiModel && !geminiBad.has(geminiModel) ? [geminiModel] : (await geminiTtsModels(key, log)).filter(x => !geminiBad.has(x)));
     if (!models.length) break;
     let waited = false;
     for (const m of models) {
@@ -142,6 +155,7 @@ async function geminiRequestInner(text, voice, systemText, log, vertex) {
           log && log(`[tts] 429 waiting ${w ? w[1] : 30}s`); await new Promise(s => setTimeout(s, ((w ? +w[1] : 30) + 2) * 1000)); waited = true; break; }
         if (r.status >= 500) { await new Promise(s => setTimeout(s, 10000 * attempt)); waited = true; break; }
         if (vertex && (r.status === 404 || r.status === 403)) { bad400 = 99; break; }
+        if (!vertex && r.status === 404) { log && log('[tts] ' + m + ' not available -> next'); geminiBad.add(m); if (geminiModel === m) geminiModel = null; break; }
         throw new Error('Gemini TTS ' + last);
       }
       if (waited) break;
