@@ -108,6 +108,11 @@ def cloud_deploy():
     pid = json.load(open(KEYF))['project_id']
     uri = f'{REGION}-docker.pkg.dev/{pid}/studio/engine:{rev[:12]}'
     log('cloud: pushing engine image ' + uri)
+    try:
+        pg = open(SITE + '/index.html').read()
+        if '☁️' not in pg: pg = pg.replace('</h1>', '</h1><p style=color:#9cf>☁️ Cloud: جاري رفع المحرك لجوجل (أول مرة بتاخد وقت)…</p>', 1)
+        open(SITE + '/index.html', 'w').write(pg.replace('☁️ Cloud: مستني الإعداد', '☁️ Cloud: جاري رفع المحرك لجوجل (أول مرة بتاخد وقت)…'))
+    except Exception: pass
     r = sh(f'docker login -u _json_key --password-stdin https://{REGION}-docker.pkg.dev < {KEYF} && docker tag {img} {uri} && timeout 3600 docker push -q {uri} && docker compose exec -T engine node cloud.js deploy {uri}', cwd=A)
     if r.returncode == 0:
         open(A + '/.cloud_rev', 'w').write(rev); log('cloud deployed ' + uri); CLOUD_MSG = '☁️ Cloud: شغال'
