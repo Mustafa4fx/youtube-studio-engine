@@ -16,12 +16,38 @@ async function render(spec, outDir, opts = {}) {
   const sfxDir = opts.sfxDir || path.join(__dirname, 'sfx');
   await ensureSfx(sfxDir);
 
-  const browser = await chromium.launch({ args: ['--no-sandbox', '--font-render-hinting=none'] });
+  // FAST capture: Chrome's deterministic BeginFrame mode (one CDP call = paint + screenshot), ~1.5x faster than page.screenshot.
+  // If anything goes wrong in that mode, the whole render is retried automatically with the classic capture.
+  const FAST = !opts.legacyCapture && process.env.CAPTURE !== 'screenshot';
+  const baseArgs = ['--no-sandbox', '--font-render-hinting=none', '--disable-gpu', '--disable-gpu-compositing'];
+  const fastArgs = ['--deterministic-mode', '--enable-begin-frame-control', '--run-all-compositor-stages-before-draw', '--disable-threaded-animation', '--disable-threaded-scrolling', '--disable-checker-imaging', '--disable-image-animation-resync', '--enable-surface-synchronization'];
+  // fast mode: one Chrome process per worker (BeginFrame control is per browser); classic: one shared browser
+  const browsers = []; opts._browsers = browsers;
+  const launch = async () => { const b = await chromium.launch({ args: FAST ? [...baseArgs, ...fastArgs] : baseArgs }); browsers.push(b); return b; };
+  const browser = FAST ? null : await launch();
+  const STEP = 1000 / FPS;
+  const withTimeout = (p, ms, what) => Promise.race([p, new Promise((_, rj) => setTimeout(() => rj(new Error('BEGINFRAME timeout: ' + what)), ms))]);
   const fams = Object.values(spec.theme.vars || {}).filter(v => /'/.test(v)).flatMap(v => v.match(/'([^']+)'/g) || []).map(x => x.replace(/'/g, ''));
   const makePage = async () => {
-    const pg = await browser.newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
-    await pg.goto('file://' + path.join(__dirname, 'stage.html'), { waitUntil: 'domcontentloaded' });
-    try { await pg.waitForLoadState('networkidle', { timeout: 15000 }); } catch (e) {}
+    const pg = await (FAST ? await launch() : browser).newPage({ viewport: { width: W, height: H }, deviceScaleFactor: 1 });
+    if (FAST) {
+      const cdp = await pg.context().newCDPSession(pg);
+      let tick = 0, chain = Promise.resolve(), pending = 0;
+      const bf = params => { pending++; const p = chain.then(() => cdp.send('HeadlessExperimental.beginFrame', { frameTimeTicks: (tick += STEP), interval: STEP, ...params })); chain = p.catch(() => {}).then(() => { pending--; }); return p; };
+      // keep the page's event loop/compositor alive while loading/decoding (only when no capture is queued)
+      pg._pump = setInterval(() => { if (!pending) bf({ noDisplayUpdates: true }).catch(() => {}); }, 33); pg._pump.unref();
+      let last = null; const SS = { screenshot: { format: 'jpeg', quality: 88, optimizeForSpeed: true } };
+      pg._shot = async file => {
+        let r = await withTimeout(bf(SS), 30000, 'frame');
+        if (!r.screenshotData) { // nothing changed on screen -> Chrome returns no image: nudge an invisible pixel and retry, else reuse last frame
+          await pg.evaluate(() => { let d = document.getElementById('__nudge'); if (!d) { d = document.createElement('div'); d.id = '__nudge'; d.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;pointer-events:none;z-index:2147483647'; document.body.appendChild(d); } d.style.background = d.style.background === 'rgba(0, 0, 0, 0.004)' ? 'rgba(0, 0, 0, 0.005)' : 'rgba(0, 0, 0, 0.004)'; });
+          r = await withTimeout(bf(SS), 30000, 'frame');
+        }
+        const buf = r.screenshotData ? Buffer.from(r.screenshotData, 'base64') : last;
+        if (!buf) throw new Error('BEGINFRAME no image ' + JSON.stringify(r).slice(0, 120) + ' file=' + path.basename(file)); last = buf; fs.writeFileSync(file, buf); };
+    } else pg._shot = file => pg.screenshot({ path: file, type: 'jpeg', quality: 88 });
+    await pg.goto('file://' + path.join(__dirname, 'stage.html'), { waitUntil: FAST ? 'load' : 'domcontentloaded' });
+    if (!FAST) { try { await pg.waitForLoadState('networkidle', { timeout: 15000 }); } catch (e) {} }
     await pg.evaluate(() => document.fonts.ready.then(() => true));
     // make sure theme fonts are actually downloaded before the first frame
     await pg.evaluate(async fs => { for (const f of fs) for (const w of [600, 700, 800, 900]) await document.fonts.load(`${w} 48px "${f}"`, 'عربي ABC 123').catch(() => {}); }, [...new Set(fams)]);
@@ -121,7 +147,7 @@ async function render(spec, outDir, opts = {}) {
     const fdir = path.join(work, `f${id}`); fs.rmSync(fdir, { recursive: true, force: true }); fs.mkdirSync(fdir);
     for (let f = 0; f < nFrames; f++) {
       await page.evaluate(ms => window.seek(ms), (f / FPS) * 1000);
-      await page.screenshot({ path: path.join(fdir, `${String(f).padStart(5, '0')}.jpg`), type: 'jpeg', quality: 88 });
+      await page._shot(path.join(fdir, `${String(f).padStart(5, '0')}.jpg`));
     }
     const segV = path.join(work, `s${id}.mp4`);
     const vArgs = ['-y', '-framerate', String(FPS), '-i', path.join(fdir, '%05d.jpg')];
@@ -153,7 +179,8 @@ async function render(spec, outDir, opts = {}) {
     };
   await Promise.all(pages.map(async pg => { while (next < spec.beats.length) { const i = next++; await doBeat(i, pg); done++; } }));
   const segsOrdered = segs.filter(Boolean); segs.length = 0; segs.push(...segsOrdered);
-  await browser.close();
+  for (const pg of pages) clearInterval(pg._pump);
+  await Promise.all(browsers.map(b => b.close().catch(() => {})));
 
   // 4) join + loudness normalisation
   const list = path.join(work, 'list.txt');
@@ -164,7 +191,15 @@ async function render(spec, outDir, opts = {}) {
   return out;
 }
 
-module.exports = { render };
+async function renderSafe(spec, outDir, opts = {}) {
+  try { return await render(spec, outDir, opts); }
+  catch (e) { await Promise.all((opts._browsers || []).map(b => b.close().catch(() => {})));
+    if (opts.legacyCapture || process.env.CAPTURE === 'screenshot' || !/BEGINFRAME|beginFrame|HeadlessExperimental|Target closed|Timeout/i.test(e.message)) throw e;
+    (opts.log || console.log)('fast capture failed (' + e.message.slice(0, 160) + ') -> retrying with classic capture');
+    return render(spec, outDir, { ...opts, legacyCapture: true });
+  }
+}
+module.exports = { render: renderSafe };
 
 if (require.main === module) {
   const [specFile, outDir, ...flags] = process.argv.slice(2);
