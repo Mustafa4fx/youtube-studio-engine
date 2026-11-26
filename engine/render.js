@@ -19,7 +19,7 @@ async function render(spec, outDir, opts = {}) {
   // FAST capture: Chrome's deterministic BeginFrame mode (one CDP call = paint + screenshot), ~1.5x faster than page.screenshot.
   // If anything goes wrong in that mode, the whole render is retried automatically with the classic capture.
   const FAST = !opts.legacyCapture && process.env.CAPTURE !== 'screenshot';
-  const baseArgs = ['--no-sandbox', '--font-render-hinting=none', '--disable-gpu', '--disable-gpu-compositing'];
+  const baseArgs = ['--no-sandbox', '--font-render-hinting=none', '--disable-gpu', '--disable-gpu-compositing', '--disable-dev-shm-usage'];
   const fastArgs = ['--deterministic-mode', '--enable-begin-frame-control', '--run-all-compositor-stages-before-draw', '--disable-threaded-animation', '--disable-threaded-scrolling', '--disable-checker-imaging', '--disable-image-animation-resync', '--enable-surface-synchronization'];
   // fast mode: one Chrome process per worker (BeginFrame control is per browser); classic: one shared browser
   const browsers = []; opts._browsers = browsers;
@@ -59,7 +59,7 @@ async function render(spec, outDir, opts = {}) {
   const cacheOf = beat => path.join(cdir, require('crypto').createHash('sha1').update([spec.provider, spec.voice, spec.lang, spec.style, beat.rate || spec.rate, beat.say].join('|')).digest('hex') + (mock ? '.mock' : '') + '.mp3');
   // ONE continuous narration for the whole video (natural flow), then Whisper word-alignment cuts it per beat
   let continuousOk = false;
-  if (!mock && spec.provider === 'gemini' && spec.continuous !== false && !only) {
+  if (!opts.noVoice && !mock && spec.provider === 'gemini' && spec.continuous !== false && !only) {
     try {
       const said = spec.beats.map(b => (b.say || '').trim());
       const full = said.filter(Boolean).join('\n');
@@ -103,7 +103,7 @@ async function render(spec, outDir, opts = {}) {
       log(`voice: continuous ok (${al.matched}/${al.total_words} words matched)`);
     } catch (e) { if (/DAILY/.test(e.message)) throw e; log('continuous voice failed -> per-chunk: ' + e.message.slice(0, 300)); }
   }
-  if (!continuousOk && !mock && spec.provider === 'gemini') {
+  if (!opts.noVoice && !continuousOk && !mock && spec.provider === 'gemini') {
     const todo = spec.beats.map((b, i) => ({ b, i })).filter(x => (!only || only.has(x.i)) && x.b.say && x.b.say.trim() && !fs.existsSync(cacheOf(x.b)));
     for (let k = 0; k < todo.length; k += 6) { const grp = todo.slice(k, k + 6);
       log(`voice batch ${k / 6 + 1}/${Math.ceil(todo.length / 6)}`);
@@ -113,8 +113,17 @@ async function render(spec, outDir, opts = {}) {
   }
   // parallel export: several browser pages render different beats at the same time
   const segs = [];
-  const WORKERS = Math.max(1, Math.min(+(process.env.RENDER_WORKERS || 3), spec.beats.length));
-  const pages = await Promise.all(Array.from({ length: WORKERS }, () => makePage()));
+  // CLOUD: send the scenes to Google Cloud Run (many machines at once); anything that fails there is rendered here
+  const remoteDone = new Set();
+  if (opts.remote && !only) {
+    try { const got = await opts.remote({ spec, work, log, FPS });
+      for (const [i, f] of Object.entries(got)) { segs[+i] = f; remoteDone.add(+i); }
+      log(`cloud: ${remoteDone.size}/${spec.beats.length} scenes rendered in the cloud`);
+    } catch (e) { log('cloud render failed -> local: ' + String(e.message).slice(0, 300)); }
+  }
+  const left = spec.beats.map((_, i) => i).filter(i => !remoteDone.has(i) && (!only || only.has(i)));
+  const WORKERS = Math.max(1, Math.min(+(process.env.RENDER_WORKERS || 3), left.length || 1));
+  const pages = left.length ? await Promise.all(Array.from({ length: WORKERS }, () => makePage())) : [];
   let next = 0, done = 0;
   const doBeat = async (i, page) => {
     if (only && !only.has(i)) return;
@@ -124,7 +133,7 @@ async function render(spec, outDir, opts = {}) {
     // 1) narration
     const voiceFile = path.join(work, `v${id}.mp3`);
     if (beat.say && beat.say.trim()) {
-      if (!fs.existsSync(voiceFile) || opts.force) {
+      if (!opts.noVoice && (!fs.existsSync(voiceFile) || opts.force)) {
         // persistent voice cache: a sentence is synthesized once, ever (saves quota and time on re-renders)
         const cf = cacheOf(beat);
         if (!fs.existsSync(cf)) await tts({ text: beat.say, voice: spec.voice, lang: spec.lang, rate: beat.rate || spec.rate, out: cf + '.tmp.mp3', mock, provider: spec.provider, style: spec.style }).then(() => fs.renameSync(cf + '.tmp.mp3', cf));
@@ -177,14 +186,14 @@ async function render(spec, outDir, opts = {}) {
     fs.rmSync(fdir, { recursive: true, force: true });
     segs[i] = segV;
     };
-  await Promise.all(pages.map(async pg => { while (next < spec.beats.length) { const i = next++; await doBeat(i, pg); done++; } }));
-  const segsOrdered = segs.filter(Boolean); segs.length = 0; segs.push(...segsOrdered);
+  await Promise.all(pages.map(async pg => { while (next < left.length) { const i = left[next++]; await doBeat(i, pg); done++; } }));
   for (const pg of pages) clearInterval(pg._pump);
   await Promise.all(browsers.map(b => b.close().catch(() => {})));
+  if (opts.segmentsOnly) return segs; // cloud task: the server joins the pieces
 
   // 4) join + loudness normalisation
   const list = path.join(work, 'list.txt');
-  fs.writeFileSync(list, segs.map(s => `file '${s}'`).join('\n'));
+  fs.writeFileSync(list, segs.filter(Boolean).map(s => `file '${s}'`).join('\n'));
   const out = path.join(outDir, (spec.id || 'video') + '.mp4');
   await sh('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', list, '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', out]);
   log('done ' + out);

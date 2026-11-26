@@ -57,6 +57,71 @@ if new and new != deployed:
     except Exception as e:
         DEPLOY_ERR = f'deploy error: {e}'; log(DEPLOY_ERR)
 
+# ---------- 1b) Google Cloud Run (fast parallel export) ----------
+KEYF = A + '/engine/specs/.gcp-sa.json'  # mounted in the engine as /specs/.gcp-sa.json (not served on the site, not in git)
+GCP_NUM = '658203090079'; REGION = 'us-central1'; BUCKET = 'studio-' + GCP_NUM
+CLOUD_MSG = ''
+
+SETUP_KEY = A + '/gcp/setup.key'
+
+def ensure_setup_keypair():
+    """RSA key pair for the one-time key handoff: the public half is published on the site, the private half never leaves the server."""
+    if os.path.exists(KEYF): return
+    os.makedirs(A + '/gcp', exist_ok=True); os.chmod(A + '/gcp', 0o700)
+    if not os.path.exists(SETUP_KEY):
+        sh(f'openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:3072 -out {SETUP_KEY}'); os.chmod(SETUP_KEY, 0o600)
+    sh(f'openssl pkey -in {SETUP_KEY} -pubout -out {SITE}/gcp-setup.pub.pem')
+
+def fetch_cloud_key():
+    """Pick up the service-account key the Cloud Shell setup left in the bucket (RSA-encrypted to this server), then remove the copy."""
+    if os.path.exists(KEYF) or not os.path.exists(SETUP_KEY): return False
+    import urllib.request, tempfile
+    try: data = urllib.request.urlopen(f'https://storage.googleapis.com/{BUCKET}/setup/keys.tgz', timeout=30).read()
+    except Exception: return False
+    d = tempfile.mkdtemp(); os.chmod(d, 0o700); open(d + '/k.tgz', 'wb').write(data); sh('tar -xzf k.tgz', cwd=d)
+    r1 = sh(f'openssl pkeyutl -decrypt -inkey {SETUP_KEY} -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -in k.enc -out k', cwd=d)
+    r2 = sh(f'openssl enc -d -aes-256-cbc -pbkdf2 -pass file:k -in sa.enc -out sa.json', cwd=d) if r1.returncode == 0 else r1
+    ok = False
+    if r2.returncode == 0:
+        try:
+            j = json.load(open(d + '/sa.json'))
+            if j.get('type') == 'service_account':
+                shutil.copy(d + '/sa.json', KEYF); os.chmod(KEYF, 0o600); ok = True
+                log('cloud key installed (' + j.get('client_email', '') + ')')
+        except Exception: pass
+    if not ok: log('cloud key: found but could not decrypt')
+    shutil.rmtree(d, ignore_errors=True)
+    if ok:
+        try: os.remove(SITE + '/gcp-setup.pub.pem')
+        except Exception: pass
+    return ok
+
+def cloud_deploy():
+    global CLOUD_MSG
+    if not os.path.exists(KEYF): CLOUD_MSG = '☁️ Cloud: مستني الإعداد'; return
+    rev = open(A + '/.engine_rev').read().strip() if os.path.exists(A + '/.engine_rev') else ''
+    if not rev: return
+    if os.path.exists(A + '/.cloud_rev') and open(A + '/.cloud_rev').read().strip() == rev:
+        CLOUD_MSG = '☁️ Cloud: شغال'; return
+    cid = sh('docker compose ps -q engine', cwd=A).stdout.strip()
+    img = sh('docker inspect --format "{{.Image}}" ' + cid).stdout.strip()
+    pid = json.load(open(KEYF))['project_id']
+    uri = f'{REGION}-docker.pkg.dev/{pid}/studio/engine:{rev[:12]}'
+    log('cloud: pushing engine image ' + uri)
+    r = sh(f'docker login -u _json_key --password-stdin https://{REGION}-docker.pkg.dev < {KEYF} && docker tag {img} {uri} && timeout 3600 docker push -q {uri} && docker compose exec -T engine node cloud.js deploy {uri}', cwd=A)
+    if r.returncode == 0:
+        open(A + '/.cloud_rev', 'w').write(rev); log('cloud deployed ' + uri); CLOUD_MSG = '☁️ Cloud: شغال'
+    else:
+        log('CLOUD DEPLOY FAILED\n' + r.stdout[-1500:]); CLOUD_MSG = '☁️ Cloud: خطأ في التجهيز — ' + r.stdout.strip()[-160:]
+
+try:
+    ensure_setup_keypair()
+    if fetch_cloud_key():
+        sh('docker compose exec -T engine node cloud.js rm setup/keys.tgz', cwd=A)
+    cloud_deploy()
+except Exception as e:
+    log(f'cloud error {e}'); CLOUD_MSG = f'☁️ Cloud: خطأ {e}'
+
 # ---------- 2) jobs ----------
 def status_of(out_dir):
     p = os.path.join(SITE, out_dir, 'status.txt')
@@ -96,7 +161,7 @@ def write_page():
     .c{{background:#14121F;border-radius:16px;padding:14px;margin:12px 0}}.c b{{display:block;font-size:17px;margin-bottom:8px}}
     a.ok{{display:block;background:#D4FF3A;color:#000;font-weight:800;padding:12px;border-radius:12px;margin:8px 0;text-decoration:none;direction:ltr;text-align:left}}
     .wait{{background:#221F33;padding:10px;border-radius:12px;margin:8px 0}}small{{display:block;color:#999;margin-top:4px;direction:ltr;text-align:left;font-size:11px}}</style>
-    <h1>🎬 الفيديوهات</h1><p style="color:#999">الصفحة بتتحدّث لوحدها كل دقيقة · آخر تحديث {datetime.datetime.now():%H:%M} · نسخة المحرك {(open(A + "/.engine_rev").read().strip()[:7] if os.path.exists(A + "/.engine_rev") else "-")}</p>{("<p style=color:#f66>⚠ " + html.escape(DEPLOY_ERR) + "</p>") if DEPLOY_ERR else ""}{"".join(cards) or "<p>مفيش شغل لسه</p>"}'''
+    <h1>🎬 الفيديوهات</h1><p style="color:#999">الصفحة بتتحدّث لوحدها كل دقيقة · آخر تحديث {datetime.datetime.now():%H:%M} · نسخة المحرك {(open(A + "/.engine_rev").read().strip()[:7] if os.path.exists(A + "/.engine_rev") else "-")}</p>{("<p style=color:#f66>⚠ " + html.escape(DEPLOY_ERR) + "</p>") if DEPLOY_ERR else ""}{("<p style=color:#9cf>" + html.escape(CLOUD_MSG) + "</p>") if CLOUD_MSG else ""}{"".join(cards) or "<p>مفيش شغل لسه</p>"}'''
     open(SITE + '/index.html', 'w').write(page)
 
 
