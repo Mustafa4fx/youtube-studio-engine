@@ -125,6 +125,7 @@ async function render(spec, outDir, opts = {}) {
     const auto = [{ name: 'whoosh', at: 0, vol: 0.35 }];
     for (const w of words) { const n = w.w.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ''); if (hl.has(n) || /\d/.test(w.w)) auto.push({ name: 'pop', at: w.s / 1000 / (spec.speed || 1), vol: 0.45 }); }
     (beat.icons || []).forEach((ic, j, arr) => { const wi = (typeof ic === 'object' && ic.at != null) ? ic.at : Math.floor((j + 0.5) * words.length / Math.max(1, arr.length)); const w = words[Math.min(words.length - 1, Math.max(0, wi))]; if (w) auto.push({ name: 'zap', at: w.s / 1000 / (spec.speed || 1), vol: 0.4 }); });
+    words.forEach((w, i) => { if (i < words.length - 1 && /[.!?؟…:]$/.test(w.w)) auto.push({ name: 'whoosh', at: (words[i + 1].s - 60) / 1000 / (spec.speed || 1), vol: 0.28 }); });
     beat.sfx = [...(beat.sfx || []), ...auto];
     // 3) audio: narration + sfx
     const aIn = [], aLabels = [];

@@ -175,6 +175,12 @@
   .tl .tx b { display:block; color:var(--accent); font-family:var(--fh); font-size:48px; }
   .circ { position:absolute; pointer-events:none; overflow:visible; }
   .circ path { fill:none; stroke:var(--danger); stroke-width:9; stroke-linecap:round; }
+
+  .leak { position:absolute; width:1400px; height:1400px; margin:-700px 0 0 -700px; border-radius:50%; pointer-events:none; mix-blend-mode:screen;
+          background:radial-gradient(circle, rgba(255,170,60,.28), rgba(255,90,40,.12) 35%, rgba(0,0,0,0) 65%); }
+  .speed { position:absolute; inset:0; pointer-events:none; opacity:0;
+           background:repeating-conic-gradient(from 0deg at 50% 50%, rgba(255,255,255,.0) 0deg 4deg, rgba(255,255,255,.10) 4deg 5deg);
+           -webkit-mask:radial-gradient(circle, transparent 28%, #000 70%); mask:radial-gradient(circle, transparent 28%, #000 70%); }
 </style>
 </head>
 <body>
@@ -315,8 +321,9 @@ function kinetic(beat, theme, vertical, tm, st, cam, fit, L) {
       raw(ch, windowKF(s, e, TOT, {opacity:1, transform:'translateY(0) scale(1)'}, {opacity:0, transform:'translateY(30px) scale(.96)'}, 70), TOT, 0, 'linear');
       c.forEach(w => { const sp = el('span','kw'+(isEm(w.w)?' em':''), null, ch); sp.textContent = w.w;
         if (isEm(w.w)) { const sv = document.createElementNS('http://www.w3.org/2000/svg','svg'); sv.setAttribute('class','scrib'); sv.setAttribute('viewBox','0 0 100 26'); sv.setAttribute('preserveAspectRatio','none'); sv.innerHTML = '<path d="M2 16 C 25 6, 50 24, 98 10"/>'; sp.appendChild(sv); const pp = sv.firstChild; pp.style.strokeDasharray = 120; raw(pp,[{strokeDashoffset:120},{strokeDashoffset:120, offset:Math.min(1,(w.s+40)/TOT)},{strokeDashoffset:0, offset:Math.min(1,(w.s+260)/TOT)},{strokeDashoffset:0}], TOT, 0, 'linear'); }
-        raw(sp, [{offset:0, transform:'scale(.6)', opacity:0, background:'rgba(0,0,0,0)', color: isEm(w.w)?'var(--accent)':'#fff'},
-                 {offset:Math.max(0,(w.s-40)/TOT), transform:'scale(.6)', opacity:0, background:'rgba(0,0,0,0)'},
+        const ENTRY = ['scale(.6)','translateY(46px) scale(.9)','scale(2.1)','rotate(-14deg) scale(.5)'][(beat._i||1) % 4];
+        raw(sp, [{offset:0, transform:ENTRY, opacity:0, background:'rgba(0,0,0,0)', color: isEm(w.w)?'var(--accent)':'#fff'},
+                 {offset:Math.max(0,(w.s-40)/TOT), transform:ENTRY, opacity:0, background:'rgba(0,0,0,0)'},
                  {offset:Math.min(1,(w.s+60)/TOT), transform: isEm(w.w)?'scale(1.28) rotate(-2deg)':'scale(1.1)', opacity:1, background: isEm(w.w)?'var(--danger)':'var(--accent2)', color:'#fff'},
                  {offset:Math.min(1,Math.max((w.s+61)/TOT,(w.e)/TOT)), transform: isEm(w.w)?'scale(1.18)':'scale(1.04)', opacity:1, background: isEm(w.w)?'var(--danger)':'var(--accent2)', color:'#fff'},
                  {offset:Math.min(1,Math.max((w.s+62)/TOT,(w.e+90)/TOT)), transform:'scale(1)', opacity:1, background:'rgba(0,0,0,0)', color: isEm(w.w)?'var(--accent)':'#fff'},
@@ -421,6 +428,47 @@ function mediaLayer(beat, vertical, tm, st, cam, L) {
   return false;
 }
 
+
+// ===== continuous-motion director: something moves EVERY moment =====
+function director(beat, tm, st, cam, L, vertical, rand) {
+  const TOT = tm.total; const words = tm.words || [];
+  // 1) virtual camera: a new framing every ~1.1-1.7 s (and on every sentence), always drifting inside a shot
+  const sentenceCuts = [];
+  words.forEach((w, i) => { if (i < words.length - 1 && /[.!?؟…:]$/.test(w.w)) sentenceCuts.push(words[i + 1].s - 40); });
+  const cuts = [0]; let t = 0;
+  while (true) { t += 1100 + 600 * rand(); if (t > TOT - 500) break; const near = sentenceCuts.find(c => Math.abs(c - t) < 550); cuts.push(near != null ? near : t); }
+  sentenceCuts.forEach(c => { if (!cuts.some(x => Math.abs(x - c) < 350)) cuts.push(c); });
+  cuts.sort((a, b) => a - b);
+  const shot = k => { const big = k % 3 === 2; return { x: (rand() * 2 - 1) * (big ? 70 : 38), y: (rand() * 2 - 1) * (big ? 40 : 22), s: 1 + (big ? 0.10 : 0.03) + 0.05 * rand(), r: (rand() * 2 - 1) * 1.4 }; };
+  const kf = []; let prev = { x: 0, y: 0, s: 1, r: 0 };
+  const P = (o, v) => kf.push({ offset: Math.min(1, Math.max(0, o / TOT)), translate: `${v.x.toFixed(1)}px ${v.y.toFixed(1)}px`, scale: v.s.toFixed(4), rotate: `${v.r.toFixed(2)}deg` });
+  cuts.forEach((c, k) => { const v = k === 0 ? { x: 0, y: 0, s: 1, r: 0 } : shot(k); const end = k + 1 < cuts.length ? cuts[k + 1] : TOT;
+    if (k > 0) P(c, prev); // hold the old framing until the cut…
+    P(Math.min(end, c + 180), v); // …snap to the new framing (fast ease)
+    const drift = { x: v.x + (rand() * 2 - 1) * 18, y: v.y + (rand() * 2 - 1) * 10, s: v.s + 0.02, r: v.r + (rand() * 2 - 1) * 0.5 }; // …and keep moving
+    P(Math.max(c + 181, end - 1), drift); prev = drift; });
+  for (let i = 1; i < kf.length; i++) if (kf[i].offset < kf[i - 1].offset) kf[i].offset = kf[i - 1].offset;
+  if (kf.length >= 2) raw(cam, kf, TOT, 0, 'cubic-bezier(.2,.8,.2,1)');
+  // 2) sentence cuts: flash + speed lines + light streak
+  const sp = el('div', 'speed', null, st); const fk = [{ offset: 0, opacity: 0 }];
+  sentenceCuts.forEach(c => { const o = c / TOT; fk.push({ offset: Math.max(fk[fk.length - 1].offset, o - .001), opacity: 0 }, { offset: Math.min(1, o + .01), opacity: .9 }, { offset: Math.min(1, o + .05), opacity: 0 }); });
+  fk.push({ offset: 1, opacity: 0 }); for (let i = 1; i < fk.length; i++) if (fk[i].offset < fk[i - 1].offset) fk[i].offset = fk[i - 1].offset;
+  if (sentenceCuts.length) raw(sp, fk, TOT, 0, 'linear');
+  sentenceCuts.forEach(c => { const sk = el('div', 'streak', null, st); raw(sk, [{ left: '-25%' }, { left: '115%' }], 380, c, 'ease-in-out'); });
+  // 3) word pulse: the whole layout "breathes" on every spoken word (secondary action)
+  if (words.length) { const pk = [{ offset: 0, scale: '1' }]; words.forEach(w => { const o = w.s / TOT; pk.push({ offset: Math.max(pk[pk.length - 1].offset, o), scale: '1' }, { offset: Math.min(1, o + 70 / TOT), scale: '1.012' }, { offset: Math.min(1, o + 200 / TOT), scale: '1' }); });
+    pk.push({ offset: 1, scale: '1' }); for (let i = 1; i < pk.length; i++) if (pk[i].offset < pk[i - 1].offset) pk[i].offset = pk[i - 1].offset; raw(L, pk, TOT, 0, 'ease-out'); }
+  // 4) idle life: every element keeps floating / swaying after it lands (follow-through), each with its own phase
+  const sel = '.card,.row,.step,.src,.ncard,.side,.bar,.bignum,.title,.kicker,.chat,.phone,.browser,.statement .sw,.msg,.tl .tx,.stamp,.dotgrid,.quiz,.logo,.sub-btn,.mid,.glitch';
+  st.querySelectorAll(sel).forEach((e, i) => { const amp = 3 + 5 * rand(), per = 1500 + 1300 * rand(), ph = -per * rand(), rot = (rand() * 2 - 1) * 0.7;
+    raw(e, [{ translate: '0 0', rotate: '0deg' }, { translate: `${(rand() * 2 - 1) * amp * 0.6}px ${-amp}px`, rotate: `${rot}deg` }, { translate: '0 0', rotate: '0deg' }], per, ph, 'ease-in-out', { iterations: Infinity }); });
+  // 5) light leaks drifting through (warm, cinematic)
+  const W = vertical ? 1080 : 1920, H = vertical ? 1920 : 1080;
+  for (let k = 0; k < Math.max(1, Math.round(TOT / 3500)); k++) { const lk = el('div', 'leak', null, st); const y = H * (0.2 + 0.6 * rand()); const dir = rand() > .5;
+    raw(lk, [{ left: (dir ? -700 : W + 700) + 'px', top: y + 'px', opacity: 0 }, { opacity: 1, offset: .4 }, { opacity: 1, offset: .6 }, { left: (dir ? W + 700 : -700) + 'px', top: (y + (rand() * 2 - 1) * 200) + 'px', opacity: 0 }], 2600 + 1200 * rand(), k * 3500 + 400 * rand(), 'ease-in-out'); }
+  return sentenceCuts;
+}
+
 // spread a template's reveal delays across the narration so elements land as they are spoken
 function stretchTemplate(tAnims, voiceStart, voiceEnd) {
   let end = 0; for (const a of tAnims) end = Math.max(end, a.effect.getComputedTiming().endTime);
@@ -456,7 +504,7 @@ window.setup = function (beat, theme, vertical, tm) {
     anim(ring,[{opacity:0, transform:'scale(1.4)'},{opacity:1, transform:'scale(1)'}],380, at/SPEED, 'cubic-bezier(.5,0,.5,1.5)');
     raw(ring,[{boxShadow:'0 0 20px var(--danger)'},{boxShadow:'0 0 70px var(--danger)'},{boxShadow:'0 0 20px var(--danger)'}], 700, at+400, 'ease-in-out', {iterations:Infinity}); }
   if (theme.bug) el('div','bug',theme.bug,st);
-  if (tm) { kinetic(beat, theme, vertical, tm, st, cam, fit, L); let x = (beat._i||1)*104729+7; fxExtra(beat, vertical, tm, st, cam, ()=> (x = (x*16807)%2147483647)/2147483647); }
+  if (tm) { kinetic(beat, theme, vertical, tm, st, cam, fit, L); let x = (beat._i||1)*104729+7; fxExtra(beat, vertical, tm, st, cam, ()=> (x = (x*16807)%2147483647)/2147483647); let y = (beat._i||1)*7907+3; director(beat, tm, st, cam, L, vertical, ()=> (y = (y*16807)%2147483647)/2147483647); }
   let end = 0; for (const a of ANIMS) { const t = a.effect.getComputedTiming(); if (isFinite(t.endTime)) end = Math.max(end, t.endTime); }
   return Math.min(end + 120, 6000);
 };
