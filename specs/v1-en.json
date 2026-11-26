@@ -1,0 +1,1460 @@
+{
+ "id": "v1-edge-ai-chatgpt-business",
+ "lang": "en-US",
+ "voice": "Sadachbia",
+ "theme": {
+  "dir": "ltr",
+  "bug": "EDGE AI",
+  "vars": {
+   "--accent": "#D4FF3A",
+   "--accent2": "#6E2EFF",
+   "--fh": "'Unbounded','Inter',sans-serif",
+   "--fb": "'Inter',sans-serif"
+  }
+ },
+ "beats": [
+  {
+   "say": "Right now, someone near you is asking ChatGPT where to spend their money.",
+   "visual": {
+    "type": "chat",
+    "q": "Best dentist near me?",
+    "answers": []
+   },
+   "sfx": [
+    "keys"
+   ],
+   "hl": [],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 6
+    },
+    {
+     "icon": "money",
+     "at": 10
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💬",
+     "at": 7
+    },
+    {
+     "e": "💰",
+     "at": 12
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "smartphone screen glowing night",
+    "alt": [
+     "phone screen dark",
+     "city lights night aerial"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "And it answers in seconds. No links. No ads. Just three names.",
+   "visual": {
+    "type": "chat",
+    "q": "Best dentist near me?",
+    "answers": [
+     "Bright Smile Clinic",
+     "Downtown Dental Care",
+     "Pearl Dental Studio"
+    ],
+    "blur": true,
+    "shown": 0
+   },
+   "sfx": [
+    {
+     "name": "whoosh",
+     "at": 1.2
+    }
+   ],
+   "hl": [
+    "three",
+    "names."
+   ],
+   "icons": [
+    {
+     "icon": "clock",
+     "at": 4
+    }
+   ],
+   "emoji": [
+    {
+     "e": "⚡",
+     "at": 4
+    }
+   ]
+  },
+  {
+   "say": "Is yours one of them?",
+   "visual": {
+    "type": "chat",
+    "q": "Best dentist near me?",
+    "answers": [
+     "Bright Smile Clinic",
+     "Downtown Dental Care",
+     "Pearl Dental Studio"
+    ],
+    "blur": true,
+    "emptySlot": "Your business?",
+    "shown": 3
+   },
+   "sfx": [
+    {
+     "name": "boom",
+     "at": 1.6
+    }
+   ],
+   "hl": [
+    "yours",
+    "one"
+   ],
+   "icons": [],
+   "emoji": []
+  },
+  {
+   "say": "On November tenth, OpenAI opened a door that changes the game.",
+   "visual": {
+    "type": "title",
+    "kicker": "November 10, 2026",
+    "title": "OpenAI opened<br>a new *door*"
+   },
+   "sfx": [
+    "door"
+   ],
+   "hl": [
+    "door"
+   ],
+   "icons": [
+    {
+     "icon": "door",
+     "at": 6
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔥",
+     "at": 10
+    }
+   ],
+   "media": {
+    "kind": "web",
+    "urls": [
+     "https://openai.com/index/introducing-businesses-in-chatgpt/",
+     "https://openai.com/business/why-openai/small-business/"
+    ],
+    "find": "Businesses in ChatGPT",
+    "fallback": {
+     "kind": "news",
+     "items": [
+      {
+       "source": "IT Brief",
+       "title": "OpenAI launches ChatGPT Business Hub for companies",
+       "date": "Nov 11, 2026"
+      },
+      {
+       "source": "AI Business",
+       "title": "OpenAI's Businesses in ChatGPT targets enterprise trust",
+       "date": "Nov 11, 2026"
+      },
+      {
+       "source": "Free Press Journal",
+       "title": "OpenAI Launches Businesses In ChatGPT, Letting Companies Claim Profiles & Deploy AI Agents",
+       "date": "Nov 11, 2026"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "say": "Stick around. At the end, a three-question test shows if ChatGPT even knows you exist.",
+   "visual": {
+    "type": "statement",
+    "text": "The *3-question test*<br>at the end"
+   },
+   "sfx": [
+    "rise"
+   ],
+   "hl": [
+    "test"
+   ],
+   "icons": [
+    {
+     "icon": "target",
+     "at": 7
+    },
+    {
+     "icon": "chat",
+     "at": 10
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🎯",
+     "at": 7
+    },
+    {
+     "e": "💬",
+     "at": 10
+    }
+   ]
+  },
+  {
+   "say": "One point two billion people use ChatGPT. Every week.",
+   "visual": {
+    "type": "bignum",
+    "value": 1.2,
+    "decimals": 1,
+    "suffix": "B",
+    "label": "people use ChatGPT every week"
+   },
+   "sfx": [
+    "rise",
+    {
+     "name": "hit",
+     "at": 1.0
+    }
+   ],
+   "hl": [
+    "One",
+    "two",
+    "billion"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 6
+    }
+   ],
+   "emoji": [
+    {
+     "e": "📈",
+     "at": 3
+    },
+    {
+     "e": "💬",
+     "at": 6
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "data center server lights",
+    "alt": [
+     "server room",
+     "network cables lights"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "They don't search anymore. They ask.",
+   "visual": {
+    "type": "statement",
+    "text": "They don't search.<br>They *ask.*"
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "ask."
+   ],
+   "icons": [
+    {
+     "icon": "search",
+     "at": 2
+    },
+    {
+     "icon": "chat",
+     "at": 5
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔍",
+     "at": 2
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "search bar on screen",
+    "alt": [
+     "laptop screen dark",
+     "computer screen code"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "And the answer is short. Brutally short.",
+   "visual": {
+    "type": "statement",
+    "text": "The answer is short.<br>*Brutally short.*"
+   },
+   "sfx": [
+    {
+     "name": "hit",
+     "at": 0.4
+    }
+   ],
+   "hl": [
+    "short.",
+    "Brutally",
+    "short."
+   ],
+   "icons": [],
+   "emoji": [
+    {
+     "e": "⚡",
+     "at": 4
+    }
+   ]
+  },
+  {
+   "say": "A SOCi study checked three hundred fifty thousand locations. ChatGPT recommended about one point two percent.",
+   "visual": {
+    "type": "dots",
+    "lit": 10,
+    "label": "~1.2% of 350,000 locations got recommended"
+   },
+   "sfx": [
+    {
+     "name": "ding",
+     "at": 1.0
+    },
+    {
+     "name": "ding",
+     "at": 1.5
+    },
+    {
+     "name": "ding",
+     "at": 2.0
+    }
+   ],
+   "hl": [
+    "three",
+    "hundred",
+    "one"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 9
+    },
+    {
+     "icon": "chart",
+     "at": 15
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💯",
+     "at": 5
+    },
+    {
+     "e": "💬",
+     "at": 9
+    }
+   ],
+   "media": {
+    "kind": "web",
+    "urls": [
+     "https://searchengineland.com/ai-local-visibility-report-2026-468085"
+    ],
+    "find": "1.2% of locations",
+    "fallback": {
+     "kind": "news",
+     "items": [
+      {
+       "source": "Search Engine Land",
+       "title": "AI local visibility is up to 30x harder than ranking in Google: Report",
+       "date": "2026"
+      },
+      {
+       "source": "SOCi",
+       "title": "2026 Local Visibility Index: ChatGPT recommends just 1.2% of locations",
+       "date": "2026"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "say": "One in a hundred. Average rating? Four point three stars.",
+   "visual": {
+    "type": "bignum",
+    "value": 4.3,
+    "decimals": 1,
+    "suffix": " ★",
+    "label": "average rating of the businesses it picked"
+   },
+   "sfx": [
+    "hit"
+   ],
+   "hl": [
+    "One",
+    "hundred.",
+    "three"
+   ],
+   "icons": [
+    {
+     "icon": "star",
+     "at": 5
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💯",
+     "at": 3
+    },
+    {
+     "e": "⭐",
+     "at": 9
+    }
+   ]
+  },
+  {
+   "say": "So what did OpenAI launch? Businesses in ChatGPT. Two parts.",
+   "visual": {
+    "type": "title",
+    "kicker": "Beta · launched Nov 10, 2026",
+    "title": "Businesses<br>in *ChatGPT*"
+   },
+   "sfx": [
+    "door"
+   ],
+   "hl": [
+    "Two"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 7
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔥",
+     "at": 4
+    },
+    {
+     "e": "💬",
+     "at": 7
+    }
+   ],
+   "media": {
+    "kind": "news",
+    "items": [
+     {
+      "source": "IT Brief",
+      "title": "OpenAI launches ChatGPT Business Hub for companies",
+      "date": "Nov 11, 2026"
+     },
+     {
+      "source": "AI Business",
+      "title": "OpenAI's Businesses in ChatGPT targets enterprise trust",
+      "date": "Nov 11, 2026"
+     },
+     {
+      "source": "Free Press Journal",
+      "title": "OpenAI Launches Businesses In ChatGPT, Letting Companies Claim Profiles & Deploy AI Agents",
+      "date": "Nov 11, 2026"
+     }
+    ]
+   }
+  },
+  {
+   "say": "Part one: Business Hub. Claim the profile ChatGPT shows for your business.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "Business Hub",
+      "lines": [
+       "Claim the profile ChatGPT shows for you"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "one:",
+    "Hub.",
+    "Claim"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 7
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🏪",
+     "at": 2
+    },
+    {
+     "e": "💬",
+     "at": 7
+    }
+   ],
+   "media": {
+    "kind": "web",
+    "urls": [
+     "https://openai.com/business/why-openai/small-business/"
+    ],
+    "find": "Introducing Businesses in ChatGPT"
+   }
+  },
+  {
+   "say": "Verify it with your phone, email, website domain, or Shopify. Plus an ID check.",
+   "visual": {
+    "type": "steps",
+    "items": [
+     "Phone number",
+     "Email",
+     "Website domain",
+     "Shopify",
+     "+ identity check"
+    ]
+   },
+   "sfx": [
+    "click",
+    {
+     "name": "click",
+     "at": 0.38
+    },
+    {
+     "name": "click",
+     "at": 0.76
+    },
+    {
+     "name": "click",
+     "at": 1.14
+    },
+    {
+     "name": "click",
+     "at": 1.52
+    }
+   ],
+   "hl": [
+    "Verify"
+   ],
+   "icons": [
+    {
+     "icon": "lock",
+     "at": 0
+    },
+    {
+     "icon": "phone",
+     "at": 4
+    },
+    {
+     "icon": "search",
+     "at": 13
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔒",
+     "at": 0
+    },
+    {
+     "e": "🔍",
+     "at": 13
+    }
+   ]
+  },
+  {
+   "say": "Fix your details. And finally, see the numbers.",
+   "visual": {
+    "type": "statement",
+    "text": "Fix your details.<br>See *the numbers.*"
+   },
+   "sfx": [
+    "zap"
+   ],
+   "hl": [
+    "numbers."
+   ],
+   "icons": [
+    {
+     "icon": "eye",
+     "at": 5
+    },
+    {
+     "icon": "chart",
+     "at": 7
+    }
+   ],
+   "emoji": [
+    {
+     "e": "📈",
+     "at": 7
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "analytics dashboard screen",
+    "alt": [
+     "charts graphs screen",
+     "stock market screen"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "Mentions. Clicks to your site. And the topics where you show up.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "Mentions",
+      "lines": [
+       "How often ChatGPT names you"
+      ]
+     },
+     {
+      "title": "Clicks",
+      "lines": [
+       "Visits to your website"
+      ]
+     },
+     {
+      "title": "Topics",
+      "lines": [
+       "Where you show up"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh",
+    {
+     "name": "whoosh",
+     "at": 0.35
+    },
+    {
+     "name": "whoosh",
+     "at": 0.7
+    }
+   ],
+   "hl": [
+    "Mentions.",
+    "Clicks"
+   ],
+   "icons": [
+    {
+     "icon": "eye",
+     "at": 0
+    },
+    {
+     "icon": "link",
+     "at": 1
+    },
+    {
+     "icon": "globe",
+     "at": 4
+    }
+   ],
+   "emoji": []
+  },
+  {
+   "say": "Part two: Business Agents. A branded chat assistant inside ChatGPT. For now? US online stores only.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "Business Agents",
+      "lines": [
+       "A chat assistant in your brand's name, inside ChatGPT"
+      ],
+      "stamp": "US online stores only — for now"
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh",
+    {
+     "name": "hit",
+     "at": 0.9
+    }
+   ],
+   "hl": [
+    "two:",
+    "Agents.",
+    "US"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 9
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🏪",
+     "at": 2
+    },
+    {
+     "e": "💬",
+     "at": 9
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "online shopping cart laptop",
+    "alt": [
+     "shopping bags",
+     "store shelves products"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "The price? Free at launch.",
+   "visual": {
+    "type": "bignum",
+    "value": 0,
+    "prefix": "$",
+    "label": "price at launch"
+   },
+   "sfx": [
+    "ding"
+   ],
+   "hl": [
+    "Free"
+   ],
+   "icons": [
+    {
+     "icon": "gift",
+     "at": 2
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🎁",
+     "at": 2
+    },
+    {
+     "e": "🔥",
+     "at": 4
+    }
+   ]
+  },
+  {
+   "say": "But here's the trap.",
+   "visual": {
+    "type": "glitch",
+    "text": "WAIT."
+   },
+   "sfx": [
+    "glitch"
+   ],
+   "hl": [
+    "trap."
+   ],
+   "icons": [
+    {
+     "icon": "warn",
+     "at": 3
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🚨",
+     "at": 3
+    }
+   ]
+  },
+  {
+   "say": "Claiming your profile does not get you recommended.",
+   "visual": {
+    "type": "statement",
+    "text": "Claiming your profile<br>does *NOT* get you recommended"
+   },
+   "sfx": [
+    {
+     "name": "boom",
+     "at": 0.2
+    }
+   ],
+   "hl": [
+    "not"
+   ],
+   "icons": [
+    {
+     "icon": "x",
+     "at": 4
+    }
+   ],
+   "emoji": [
+    {
+     "e": "❌",
+     "at": 4
+    }
+   ]
+  },
+  {
+   "say": "It fixes your info and shows the scoreboard. That's it.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "✓ It does",
+      "lines": [
+       "Fix your information",
+       "Show your numbers"
+      ]
+     },
+     {
+      "title": "✗ It doesn't",
+      "lines": [
+       "Boost your mentions",
+       "Make ChatGPT pick you"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "scoreboard."
+   ],
+   "icons": [
+    {
+     "icon": "chart",
+     "at": 7
+    }
+   ],
+   "emoji": []
+  },
+  {
+   "say": "And once it's published, you can't delete it. Get it right the first time.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "Careful",
+      "lines": [
+       "A published profile can't be deleted"
+      ],
+      "stamp": "Get it right first"
+     }
+    ]
+   },
+   "sfx": [
+    {
+     "name": "hit",
+     "at": 0.6
+    }
+   ],
+   "hl": [
+    "delete"
+   ],
+   "icons": [
+    {
+     "icon": "warn",
+     "at": 6
+    },
+    {
+     "icon": "trash",
+     "at": 6
+    },
+    {
+     "icon": "check",
+     "at": 10
+    }
+   ],
+   "emoji": [
+    {
+     "e": "❌",
+     "at": 6
+    },
+    {
+     "e": "✅",
+     "at": 10
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "delete key keyboard",
+    "alt": [
+     "keyboard keys close up"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "So what actually works?",
+   "visual": {
+    "type": "statement",
+    "text": "So what *is*<br>the magic button?"
+   },
+   "sfx": [
+    "rise"
+   ],
+   "hl": [
+    "works?"
+   ],
+   "icons": [
+    {
+     "icon": "check",
+     "at": 3
+    }
+   ],
+   "emoji": [
+    {
+     "e": "✅",
+     "at": 3
+    }
+   ]
+  },
+  {
+   "say": "ChatGPT leans on sources. Websites, review platforms, lists, articles. The places people already talk about you.",
+   "visual": {
+    "type": "sources",
+    "answer": "Top 3 picks…",
+    "sources": [
+     "Websites",
+     "Review sites",
+     "Top lists",
+     "Articles"
+    ]
+   },
+   "sfx": [
+    {
+     "name": "zap",
+     "at": 0.7
+    },
+    {
+     "name": "zap",
+     "at": 0.96
+    },
+    {
+     "name": "zap",
+     "at": 1.22
+    },
+    {
+     "name": "zap",
+     "at": 1.48
+    }
+   ],
+   "hl": [
+    "sources."
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 0
+    },
+    {
+     "icon": "search",
+     "at": 3
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💬",
+     "at": 0
+    },
+    {
+     "e": "🔍",
+     "at": 3
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "website scrolling screen",
+    "alt": [
+     "web page computer screen",
+     "coding screen"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "So play detective. Three moves.",
+   "visual": {
+    "type": "title",
+    "kicker": "The fastest path",
+    "title": "Detective<br>*work*"
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "detective.",
+    "Three",
+    "moves."
+   ],
+   "icons": [
+    {
+     "icon": "search",
+     "at": 2
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔍",
+     "at": 2
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "magnifying glass",
+    "alt": [
+     "magnifier on paper"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "One: find the questions your competitors win. Two: check the sources ChatGPT cites. Three: get into those same sources, with real info and real reviews.",
+   "visual": {
+    "type": "steps",
+    "items": [
+     "Find the questions your competitors win",
+     "See which sources ChatGPT cites",
+     "Get into those exact sources — for real"
+    ]
+   },
+   "sfx": [
+    "click",
+    {
+     "name": "click",
+     "at": 0.38
+    },
+    {
+     "name": "click",
+     "at": 0.76
+    }
+   ],
+   "hl": [
+    "One:",
+    "win.",
+    "Two:"
+   ],
+   "icons": [
+    {
+     "icon": "search",
+     "at": 8
+    },
+    {
+     "icon": "chat",
+     "at": 11
+    },
+    {
+     "icon": "star",
+     "at": 24
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔍",
+     "at": 8
+    },
+    {
+     "e": "💬",
+     "at": 11
+    }
+   ]
+  },
+  {
+   "say": "Keep your name, address and hours identical everywhere.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "Website",
+      "lines": [
+       "Same name",
+       "Same address",
+       "Same hours"
+      ]
+     },
+     {
+      "title": "Listings",
+      "lines": [
+       "Same name",
+       "Same address",
+       "Same hours"
+      ]
+     },
+     {
+      "title": "Socials",
+      "lines": [
+       "Same name",
+       "Same address",
+       "Same hours"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "lock"
+   ],
+   "hl": [
+    "identical"
+   ],
+   "icons": [
+    {
+     "icon": "pin",
+     "at": 3
+    },
+    {
+     "icon": "clock",
+     "at": 5
+    },
+    {
+     "icon": "check",
+     "at": 6
+    }
+   ],
+   "emoji": [
+    {
+     "e": "✅",
+     "at": 6
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "storefront sign night",
+    "alt": [
+     "neon open sign",
+     "shop window night"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "Matching facts are easier for AI to trust.",
+   "visual": {
+    "type": "statement",
+    "text": "Matching facts =<br>*easier to trust*"
+   },
+   "sfx": [
+    "ding"
+   ],
+   "hl": [
+    "trust."
+   ],
+   "icons": [],
+   "emoji": [
+    {
+     "e": "🧠",
+     "at": 5
+    }
+   ]
+  },
+  {
+   "say": "And answer your customers' real questions on your own site. If you never say it, no AI can repeat it.",
+   "visual": {
+    "type": "statement",
+    "text": "If you don't say it anywhere,<br>*no AI can repeat it.*"
+   },
+   "sfx": [
+    {
+     "name": "hit",
+     "at": 0.3
+    }
+   ],
+   "hl": [
+    "real",
+    "repeat"
+   ],
+   "icons": [
+    {
+     "icon": "globe",
+     "at": 9
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🧠",
+     "at": 16
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "laptop website screen",
+    "alt": [
+     "computer screen website"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "Now the test. Open ChatGPT and ask three questions.",
+   "visual": {
+    "type": "quiz",
+    "kicker": "The 3-question test",
+    "question": "Ready?",
+    "timer": true
+   },
+   "sfx": [
+    "tick"
+   ],
+   "hl": [
+    "test.",
+    "ask",
+    "three"
+   ],
+   "icons": [
+    {
+     "icon": "target",
+     "at": 2
+    },
+    {
+     "icon": "chat",
+     "at": 4
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🎯",
+     "at": 2
+    },
+    {
+     "e": "💬",
+     "at": 4
+    }
+   ]
+  },
+  {
+   "say": "One. Best, your business type, in your city? Are you on the list?",
+   "visual": {
+    "type": "quiz",
+    "kicker": "Question 1",
+    "question": "What are the best [your business type] in [your city]?"
+   },
+   "sfx": [
+    "keys"
+   ],
+   "hl": [
+    "One."
+   ],
+   "icons": [
+    {
+     "icon": "pin",
+     "at": 7
+    },
+    {
+     "icon": "list",
+     "at": 12
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🏪",
+     "at": 3
+    }
+   ]
+  },
+  {
+   "say": "Two. What do you know about, your business name? Right, outdated, or missing?",
+   "visual": {
+    "type": "quiz",
+    "kicker": "Question 2",
+    "question": "What do you know about [your business name]?"
+   },
+   "sfx": [
+    "keys"
+   ],
+   "hl": [
+    "Two."
+   ],
+   "icons": [
+    {
+     "icon": "check",
+     "at": 9
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🏪",
+     "at": 7
+    },
+    {
+     "e": "✅",
+     "at": 9
+    }
+   ]
+  },
+  {
+   "say": "Three. Check the sources it cites for others. Those are your targets.",
+   "visual": {
+    "type": "sources",
+    "answer": "Recommended: …",
+    "sources": [
+     "Target 1",
+     "Target 2",
+     "Target 3"
+    ]
+   },
+   "sfx": [
+    {
+     "name": "zap",
+     "at": 0.7
+    },
+    {
+     "name": "zap",
+     "at": 0.96
+    },
+    {
+     "name": "zap",
+     "at": 1.22
+    }
+   ],
+   "hl": [
+    "Three.",
+    "sources",
+    "cites"
+   ],
+   "icons": [
+    {
+     "icon": "search",
+     "at": 1
+    },
+    {
+     "icon": "target",
+     "at": 11
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔍",
+     "at": 1
+    },
+    {
+     "e": "🎯",
+     "at": 11
+    }
+   ]
+  },
+  {
+   "say": "Answers shift, so rerun it monthly and watch the trend.",
+   "visual": {
+    "type": "statement",
+    "text": "Repeat *every month.*<br>Watch the trend."
+   },
+   "sfx": [
+    "chime"
+   ],
+   "hl": [
+    "monthly",
+    "trend."
+   ],
+   "icons": [
+    {
+     "icon": "clock",
+     "at": 5
+    },
+    {
+     "icon": "chart",
+     "at": 9
+    }
+   ],
+   "emoji": [
+    {
+     "e": "⏰",
+     "at": 5
+    },
+    {
+     "e": "📈",
+     "at": 9
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "calendar month planner",
+    "alt": [
+     "calendar pages"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "Three names. Make sure one is yours.",
+   "visual": {
+    "type": "chat",
+    "q": "Best dentist near me?",
+    "answers": [
+     "Bright Smile Clinic",
+     "Downtown Dental Care",
+     "Pearl Dental Studio"
+    ],
+    "blur": true,
+    "emptySlot": "YOUR NAME HERE",
+    "shown": 3
+   },
+   "sfx": [
+    "rise",
+    {
+     "name": "hit",
+     "at": 1.6
+    }
+   ],
+   "hl": [
+    "Three",
+    "names.",
+    "one"
+   ],
+   "icons": [],
+   "emoji": []
+  },
+  {
+   "say": "Edge AI. AI explained, straight to the point. Subscribe so you don't miss the next one.",
+   "visual": {
+    "type": "outro",
+    "name": "EDGE *AI*",
+    "tagline": "AI. Straight to the point.",
+    "cta": "SUBSCRIBE"
+   },
+   "sfx": [
+    "slice",
+    {
+     "name": "ding",
+     "at": 0.9
+    }
+   ],
+   "pause": 0.8,
+   "hl": [
+    "Subscribe",
+    "one."
+   ],
+   "icons": [],
+   "emoji": [
+    {
+     "e": "🧠",
+     "at": 1
+    },
+    {
+     "e": "🔔",
+     "at": 8
+    }
+   ]
+  }
+ ],
+ "speed": 0.6,
+ "provider": "gemini",
+ "style": "Read this as a high-energy YouTube narrator: fast pace, punchy, exciting and confident, short pauses only:"
+}

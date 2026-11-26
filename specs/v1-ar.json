@@ -1,0 +1,1400 @@
+{
+ "id": "v1-ai-world-chatgpt-business",
+ "lang": "ar-SA",
+ "voice": "Sadachbia",
+ "theme": {
+  "dir": "rtl",
+  "bug": "عالم الذكاء",
+  "vars": {
+   "--accent": "#D4FF3A",
+   "--accent2": "#6E2EFF",
+   "--fh": "'Alexandria','Cairo',sans-serif",
+   "--fb": "'Alexandria','Cairo',sans-serif"
+  }
+ },
+ "beats": [
+  {
+   "say": "في هذه اللحظة، هناك من يسأل ChatGPT: أين أُنفق مالي؟",
+   "visual": {
+    "type": "chat",
+    "q": "ما أفضل طبيب أسنان قريب مني؟",
+    "answers": []
+   },
+   "sfx": [
+    "keys"
+   ],
+   "hl": [
+    "ChatGPT:"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 5
+    },
+    {
+     "icon": "money",
+     "at": 9
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💬",
+     "at": 6
+    },
+    {
+     "e": "💰",
+     "at": 9
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "smartphone screen glowing night",
+    "alt": [
+     "phone screen dark",
+     "city lights night aerial"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "والجواب يأتي في ثوانٍ. لا روابط. لا إعلانات. ثلاثة أسماء فقط.",
+   "visual": {
+    "type": "chat",
+    "q": "ما أفضل طبيب أسنان قريب مني؟",
+    "answers": [
+     "عيادة الابتسامة المشرقة",
+     "مركز وسط المدينة للأسنان",
+     "استوديو اللؤلؤ للأسنان"
+    ],
+    "blur": true,
+    "shown": 0
+   },
+   "sfx": [
+    {
+     "name": "whoosh",
+     "at": 0.4
+    }
+   ],
+   "hl": [
+    "ثلاثة",
+    "فقط."
+   ],
+   "icons": [
+    {
+     "icon": "clock",
+     "at": 3
+    },
+    {
+     "icon": "x",
+     "at": 4
+    }
+   ],
+   "emoji": [
+    {
+     "e": "⚡",
+     "at": 3
+    }
+   ]
+  },
+  {
+   "say": "فهل اسمك بينها؟",
+   "visual": {
+    "type": "chat",
+    "q": "ما أفضل طبيب أسنان قريب مني؟",
+    "answers": [
+     "عيادة الابتسامة المشرقة",
+     "مركز وسط المدينة للأسنان",
+     "استوديو اللؤلؤ للأسنان"
+    ],
+    "blur": true,
+    "shown": 3,
+    "emptySlot": "مشروعك؟"
+   },
+   "sfx": [
+    {
+     "name": "boom",
+     "at": 0.7
+    }
+   ],
+   "hl": [
+    "اسمك"
+   ],
+   "icons": [],
+   "emoji": []
+  },
+  {
+   "say": "في العاشر من نوفمبر، فتحت OpenAI بابًا يقلب اللعبة.",
+   "visual": {
+    "type": "title",
+    "kicker": "10 نوفمبر 2026",
+    "title": "OpenAI فتحت<br>*بابًا جديدًا*"
+   },
+   "sfx": [
+    "door"
+   ],
+   "hl": [
+    "OpenAI",
+    "بابًا"
+   ],
+   "icons": [
+    {
+     "icon": "door",
+     "at": 6
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔥",
+     "at": 8
+    }
+   ],
+   "media": {
+    "kind": "web",
+    "urls": [
+     "https://openai.com/index/introducing-businesses-in-chatgpt/",
+     "https://openai.com/business/why-openai/small-business/"
+    ],
+    "find": "Businesses in ChatGPT",
+    "fallback": {
+     "kind": "news",
+     "items": [
+      {
+       "source": "IT Brief",
+       "title": "OpenAI launches ChatGPT Business Hub for companies",
+       "date": "Nov 11, 2026"
+      },
+      {
+       "source": "AI Business",
+       "title": "OpenAI's Businesses in ChatGPT targets enterprise trust",
+       "date": "Nov 11, 2026"
+      },
+      {
+       "source": "Free Press Journal",
+       "title": "OpenAI Launches Businesses In ChatGPT, Letting Companies Claim Profiles & Deploy AI Agents",
+       "date": "Nov 11, 2026"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "say": "ابقَ حتى النهاية، فهناك اختبارٌ من ثلاثة أسئلة يكشف: هل يعرفك ChatGPT أصلًا؟",
+   "visual": {
+    "type": "statement",
+    "text": "*اختبار الأسئلة الثلاثة*<br>في النهاية"
+   },
+   "sfx": [
+    "rise"
+   ],
+   "hl": [
+    "اختبارٌ",
+    "ثلاثة",
+    "ChatGPT"
+   ],
+   "icons": [
+    {
+     "icon": "target",
+     "at": 4
+    },
+    {
+     "icon": "chat",
+     "at": 11
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🎯",
+     "at": 4
+    },
+    {
+     "e": "💬",
+     "at": 11
+    }
+   ]
+  },
+  {
+   "say": "مليارٌ ومئتا مليون شخص يستخدمون ChatGPT. كلَّ أسبوع.",
+   "visual": {
+    "type": "bignum",
+    "value": 1.2,
+    "decimals": 1,
+    "suffix": " مليار",
+    "label": "يستخدمون ChatGPT كل أسبوع"
+   },
+   "sfx": [
+    "rise",
+    {
+     "name": "hit",
+     "at": 1.0
+    }
+   ],
+   "hl": [
+    "مليارٌ",
+    "ChatGPT.",
+    "أسبوع."
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 5
+    }
+   ],
+   "emoji": [
+    {
+     "e": "📈",
+     "at": 0
+    },
+    {
+     "e": "💬",
+     "at": 5
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "data center server lights",
+    "alt": [
+     "server room",
+     "network cables lights"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "لم يعودوا يبحثون. بل يسألون.",
+   "visual": {
+    "type": "statement",
+    "text": "لم يعودوا يبحثون…<br>*بل يسألون.*"
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "يسألون."
+   ],
+   "icons": [
+    {
+     "icon": "search",
+     "at": 2
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔍",
+     "at": 2
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "search bar on screen",
+    "alt": [
+     "laptop screen dark",
+     "computer screen code"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "والجواب قصير. قصيرٌ جدًّا.",
+   "visual": {
+    "type": "statement",
+    "text": "الجواب قصير…<br>*قصيرٌ جدًّا.*"
+   },
+   "sfx": [
+    {
+     "name": "hit",
+     "at": 0.4
+    }
+   ],
+   "hl": [
+    "قصير.",
+    "قصيرٌ"
+   ],
+   "icons": [],
+   "emoji": [
+    {
+     "e": "⚡",
+     "at": 1
+    }
+   ]
+  },
+  {
+   "say": "دراسةٌ من SOCi فحصت ثلاثمئة وخمسين ألف فرع. رُشِّح منها نحو واحد فاصلة اثنين بالمئة فقط.",
+   "visual": {
+    "type": "dots",
+    "lit": 10,
+    "label": "نحو 1.2% فقط من 350 ألف فرع حصلوا على ترشيح"
+   },
+   "sfx": [
+    {
+     "name": "ding",
+     "at": 1.0
+    },
+    {
+     "name": "ding",
+     "at": 1.5
+    },
+    {
+     "name": "ding",
+     "at": 2.0
+    }
+   ],
+   "hl": [
+    "بالمئة",
+    "فقط."
+   ],
+   "icons": [
+    {
+     "icon": "chart",
+     "at": 14
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💯",
+     "at": 14
+    }
+   ],
+   "media": {
+    "kind": "web",
+    "urls": [
+     "https://searchengineland.com/ai-local-visibility-report-2026-468085"
+    ],
+    "find": "1.2% of locations",
+    "fallback": {
+     "kind": "news",
+     "items": [
+      {
+       "source": "Search Engine Land",
+       "title": "AI local visibility is up to 30x harder than ranking in Google: Report",
+       "date": "2026"
+      },
+      {
+       "source": "SOCi",
+       "title": "2026 Local Visibility Index: ChatGPT recommends just 1.2% of locations",
+       "date": "2026"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "say": "واحدٌ من مئة. ومتوسط تقييمهم؟ أربعة فاصلة ثلاثة نجوم.",
+   "visual": {
+    "type": "bignum",
+    "value": 4.3,
+    "decimals": 1,
+    "suffix": " ★",
+    "label": "متوسط تقييم المشاريع المُرشَّحة"
+   },
+   "sfx": [
+    "hit"
+   ],
+   "hl": [
+    "مئة.",
+    "ثلاثة",
+    "نجوم."
+   ],
+   "icons": [
+    {
+     "icon": "star",
+     "at": 8
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💯",
+     "at": 2
+    },
+    {
+     "e": "⭐",
+     "at": 8
+    }
+   ]
+  },
+  {
+   "say": "فماذا أطلقت OpenAI؟ Businesses in ChatGPT. جزآن.",
+   "visual": {
+    "type": "title",
+    "kicker": "نسخة تجريبية · 10 نوفمبر 2026",
+    "title": "Businesses<br>in *ChatGPT*"
+   },
+   "sfx": [
+    "door"
+   ],
+   "hl": [
+    "OpenAI؟",
+    "ChatGPT.",
+    "جزآن."
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 5
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔥",
+     "at": 1
+    },
+    {
+     "e": "💬",
+     "at": 5
+    }
+   ],
+   "media": {
+    "kind": "news",
+    "items": [
+     {
+      "source": "IT Brief",
+      "title": "OpenAI launches ChatGPT Business Hub for companies",
+      "date": "Nov 11, 2026"
+     },
+     {
+      "source": "AI Business",
+      "title": "OpenAI's Businesses in ChatGPT targets enterprise trust",
+      "date": "Nov 11, 2026"
+     },
+     {
+      "source": "Free Press Journal",
+      "title": "OpenAI Launches Businesses In ChatGPT, Letting Companies Claim Profiles & Deploy AI Agents",
+      "date": "Nov 11, 2026"
+     }
+    ]
+   }
+  },
+  {
+   "say": "الأول: مركز الأعمال. طالِب بالصفحة التي يعرضها ChatGPT عن مشروعك.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "مركز الأعمال",
+      "lines": [
+       "طالِب بالصفحة التي يعرضها ChatGPT عن مشروعك"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "مركز",
+    "ChatGPT"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 7
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💬",
+     "at": 7
+    },
+    {
+     "e": "🏪",
+     "at": 9
+    }
+   ],
+   "media": {
+    "kind": "web",
+    "urls": [
+     "https://openai.com/business/why-openai/small-business/"
+    ],
+    "find": "Introducing Businesses in ChatGPT"
+   }
+  },
+  {
+   "say": "وثّقها بالهاتف، أو البريد، أو نطاق موقعك، أو Shopify. مع تحقّقٍ من الهوية.",
+   "visual": {
+    "type": "steps",
+    "items": [
+     "رقم الهاتف",
+     "البريد الإلكتروني",
+     "نطاق موقعك",
+     "Shopify",
+     "+ تحقّق من الهوية"
+    ]
+   },
+   "sfx": [
+    "click",
+    {
+     "name": "click",
+     "at": 0.38
+    },
+    {
+     "name": "click",
+     "at": 0.76
+    },
+    {
+     "name": "click",
+     "at": 1.14
+    },
+    {
+     "name": "click",
+     "at": 1.52
+    }
+   ],
+   "hl": [
+    "وثّقها"
+   ],
+   "icons": [
+    {
+     "icon": "lock",
+     "at": 0
+    },
+    {
+     "icon": "phone",
+     "at": 1
+    },
+    {
+     "icon": "mail",
+     "at": 3
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔒",
+     "at": 0
+    }
+   ]
+  },
+  {
+   "say": "صحّح بياناتك. وأخيرًا، شاهد الأرقام.",
+   "visual": {
+    "type": "statement",
+    "text": "صحّح بياناتك…<br>*وشاهد الأرقام.*"
+   },
+   "sfx": [
+    "zap"
+   ],
+   "hl": [
+    "الأرقام."
+   ],
+   "icons": [
+    {
+     "icon": "eye",
+     "at": 3
+    },
+    {
+     "icon": "chart",
+     "at": 4
+    }
+   ],
+   "emoji": [
+    {
+     "e": "📈",
+     "at": 4
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "analytics dashboard screen",
+    "alt": [
+     "charts graphs screen",
+     "stock market screen"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "مرات الذِّكر. النقرات إلى موقعك. والموضوعات التي تظهر فيها.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "الذِّكر",
+      "lines": [
+       "كم مرة ذكرك ChatGPT"
+      ]
+     },
+     {
+      "title": "النقرات",
+      "lines": [
+       "الزيارات إلى موقعك"
+      ]
+     },
+     {
+      "title": "الموضوعات",
+      "lines": [
+       "أين تظهر"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh",
+    {
+     "name": "whoosh",
+     "at": 0.35
+    },
+    {
+     "name": "whoosh",
+     "at": 0.7
+    }
+   ],
+   "hl": [
+    "الذِّكر."
+   ],
+   "icons": [
+    {
+     "icon": "eye",
+     "at": 1
+    },
+    {
+     "icon": "link",
+     "at": 2
+    },
+    {
+     "icon": "globe",
+     "at": 4
+    }
+   ],
+   "emoji": []
+  },
+  {
+   "say": "الثاني: وكلاء الأعمال. مساعدٌ باسم علامتك داخل ChatGPT. لكنه حاليًا للمتاجر الأمريكية فقط.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "وكلاء الأعمال",
+      "lines": [
+       "مساعد محادثة باسم علامتك داخل ChatGPT"
+      ],
+      "stamp": "المتاجر الأمريكية فقط — حاليًا"
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh",
+    {
+     "name": "hit",
+     "at": 0.9
+    }
+   ],
+   "hl": [
+    "وكلاء",
+    "ChatGPT.",
+    "الأمريكية"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 7
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💬",
+     "at": 7
+    },
+    {
+     "e": "🏪",
+     "at": 10
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "online shopping cart laptop",
+    "alt": [
+     "shopping bags",
+     "store shelves products"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "والتكلفة؟ مجانًا عند الإطلاق.",
+   "visual": {
+    "type": "bignum",
+    "value": 0,
+    "suffix": " $",
+    "label": "التكلفة عند الإطلاق"
+   },
+   "sfx": [
+    "ding"
+   ],
+   "hl": [
+    "مجانًا"
+   ],
+   "icons": [
+    {
+     "icon": "gift",
+     "at": 1
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🎁",
+     "at": 1
+    }
+   ]
+  },
+  {
+   "say": "لكن انتبه للفخ.",
+   "visual": {
+    "type": "glitch",
+    "text": "انتظر!"
+   },
+   "sfx": [
+    "glitch"
+   ],
+   "hl": [],
+   "icons": [],
+   "emoji": []
+  },
+  {
+   "say": "المطالبة بصفحتك لا تجعلك مُرشَّحًا.",
+   "visual": {
+    "type": "statement",
+    "text": "المطالبة بصفحتك<br>*لا* تجعله يرشّحك"
+   },
+   "sfx": [
+    {
+     "name": "boom",
+     "at": 0.2
+    }
+   ],
+   "hl": [],
+   "icons": [
+    {
+     "icon": "x",
+     "at": 2
+    }
+   ],
+   "emoji": []
+  },
+  {
+   "say": "إنها تصحّح بياناتك وتُريك النتائج. فقط.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "✓ تفعل",
+      "lines": [
+       "تصحيح بياناتك",
+       "عرض أرقامك"
+      ]
+     },
+     {
+      "title": "✗ لا تفعل",
+      "lines": [
+       "زيادة مرات ذكرك",
+       "جعل ChatGPT يختارك"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "فقط."
+   ],
+   "icons": [
+    {
+     "icon": "chart",
+     "at": 4
+    }
+   ],
+   "emoji": []
+  },
+  {
+   "say": "وبعد النشر لا يمكن حذفها. فاكتبها صحيحةً من أول مرة.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "انتبه",
+      "lines": [
+       "الصفحة المنشورة لا يمكن حذفها"
+      ],
+      "stamp": "اكتبها صحيحة من البداية"
+     }
+    ]
+   },
+   "sfx": [
+    {
+     "name": "hit",
+     "at": 0.6
+    }
+   ],
+   "hl": [
+    "حذفها."
+   ],
+   "icons": [
+    {
+     "icon": "x",
+     "at": 2
+    },
+    {
+     "icon": "warn",
+     "at": 4
+    },
+    {
+     "icon": "trash",
+     "at": 4
+    }
+   ],
+   "emoji": [
+    {
+     "e": "✅",
+     "at": 6
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "delete key keyboard",
+    "alt": [
+     "keyboard keys close up"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "فما الذي ينجح فعلًا؟",
+   "visual": {
+    "type": "statement",
+    "text": "فما هو<br>*الزرّ السحري؟*"
+   },
+   "sfx": [
+    "rise"
+   ],
+   "hl": [
+    "ينجح"
+   ],
+   "icons": [
+    {
+     "icon": "check",
+     "at": 2
+    }
+   ],
+   "emoji": [
+    {
+     "e": "✅",
+     "at": 2
+    }
+   ]
+  },
+  {
+   "say": "ChatGPT يعتمد على مصادر: مواقع، ومنصات تقييم، وقوائم، ومقالات. الأماكن التي يتحدث فيها الناس عنك.",
+   "visual": {
+    "type": "sources",
+    "answer": "أفضل 3 ترشيحات…",
+    "sources": [
+     "المواقع",
+     "منصات التقييم",
+     "القوائم",
+     "المقالات"
+    ]
+   },
+   "sfx": [
+    {
+     "name": "zap",
+     "at": 0.7
+    },
+    {
+     "name": "zap",
+     "at": 0.96
+    },
+    {
+     "name": "zap",
+     "at": 1.22
+    },
+    {
+     "name": "zap",
+     "at": 1.48
+    }
+   ],
+   "hl": [
+    "ChatGPT",
+    "مصادر:"
+   ],
+   "icons": [
+    {
+     "icon": "chat",
+     "at": 0
+    },
+    {
+     "icon": "search",
+     "at": 3
+    },
+    {
+     "icon": "star",
+     "at": 6
+    }
+   ],
+   "emoji": [
+    {
+     "e": "💬",
+     "at": 0
+    },
+    {
+     "e": "🔍",
+     "at": 3
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "website scrolling screen",
+    "alt": [
+     "web page computer screen",
+     "coding screen"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "إذن، كن محقّقًا. ثلاث خطوات.",
+   "visual": {
+    "type": "title",
+    "kicker": "أسرع طريق",
+    "title": "عمل<br>*المحقّق*"
+   },
+   "sfx": [
+    "whoosh"
+   ],
+   "hl": [
+    "محقّقًا."
+   ],
+   "icons": [
+    {
+     "icon": "search",
+     "at": 2
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔍",
+     "at": 2
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "magnifying glass",
+    "alt": [
+     "magnifier on paper"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "أولًا: اعرف الأسئلة التي يفوز فيها منافسوك. ثانيًا: افحص المصادر التي يستشهد بها. ثالثًا: ادخل تلك المصادر نفسها، بمعلوماتٍ وتقييماتٍ حقيقية.",
+   "visual": {
+    "type": "steps",
+    "items": [
+     "اعرف الأسئلة التي يفوز فيها منافسوك",
+     "انظر إلى المصادر التي يستشهد بها",
+     "ادخل تلك المصادر نفسها… بصدق"
+    ]
+   },
+   "sfx": [
+    "click",
+    {
+     "name": "click",
+     "at": 0.38
+    },
+    {
+     "name": "click",
+     "at": 0.76
+    }
+   ],
+   "hl": [
+    "منافسوك.",
+    "حقيقية."
+   ],
+   "icons": [
+    {
+     "icon": "trophy",
+     "at": 4
+    },
+    {
+     "icon": "search",
+     "at": 8
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🏆",
+     "at": 4
+    },
+    {
+     "e": "🔍",
+     "at": 8
+    }
+   ]
+  },
+  {
+   "say": "اجعل اسمك وعنوانك ومواعيدك متطابقةً في كل مكان.",
+   "visual": {
+    "type": "cards",
+    "items": [
+     {
+      "title": "موقعك",
+      "lines": [
+       "الاسم نفسه",
+       "العنوان نفسه",
+       "المواعيد نفسها"
+      ]
+     },
+     {
+      "title": "الأدلّة",
+      "lines": [
+       "الاسم نفسه",
+       "العنوان نفسه",
+       "المواعيد نفسها"
+      ]
+     },
+     {
+      "title": "حساباتك",
+      "lines": [
+       "الاسم نفسه",
+       "العنوان نفسه",
+       "المواعيد نفسها"
+      ]
+     }
+    ]
+   },
+   "sfx": [
+    "lock"
+   ],
+   "hl": [
+    "اسمك",
+    "متطابقةً"
+   ],
+   "icons": [
+    {
+     "icon": "check",
+     "at": 4
+    }
+   ],
+   "emoji": [
+    {
+     "e": "✅",
+     "at": 4
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "storefront sign night",
+    "alt": [
+     "neon open sign",
+     "shop window night"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "الحقائق المتطابقة أسهل في الثقة.",
+   "visual": {
+    "type": "statement",
+    "text": "حقائق متطابقة =<br>*ثقة أسهل*"
+   },
+   "sfx": [
+    "ding"
+   ],
+   "hl": [
+    "الثقة."
+   ],
+   "icons": [],
+   "emoji": [
+    {
+     "e": "🧠",
+     "at": 4
+    }
+   ]
+  },
+  {
+   "say": "وأجِب عن أسئلة عملائك الحقيقية في موقعك أنت. ما لا تقوله، لن يكرّره أيّ ذكاء اصطناعي.",
+   "visual": {
+    "type": "statement",
+    "text": "ما لا تقوله في أيّ مكان…<br>*لن يكرّره أيّ ذكاء اصطناعي.*"
+   },
+   "sfx": [
+    {
+     "name": "hit",
+     "at": 0.3
+    }
+   ],
+   "hl": [
+    "يكرّره"
+   ],
+   "icons": [
+    {
+     "icon": "globe",
+     "at": 6
+    },
+    {
+     "icon": "x",
+     "at": 9
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🧠",
+     "at": 14
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": true,
+    "query": "laptop website screen",
+    "alt": [
+     "computer screen website"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "والآن الاختبار. افتح ChatGPT واسأل ثلاثة أسئلة.",
+   "visual": {
+    "type": "quiz",
+    "kicker": "اختبار الأسئلة الثلاثة",
+    "question": "مستعد؟",
+    "timer": true
+   },
+   "sfx": [
+    "tick"
+   ],
+   "hl": [
+    "الاختبار.",
+    "ChatGPT",
+    "ثلاثة"
+   ],
+   "icons": [
+    {
+     "icon": "target",
+     "at": 1
+    },
+    {
+     "icon": "chat",
+     "at": 3
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🎯",
+     "at": 1
+    },
+    {
+     "e": "💬",
+     "at": 3
+    }
+   ]
+  },
+  {
+   "say": "الأول: ما أفضل… نوع مشروعك… في مدينتك؟ هل أنت في القائمة؟",
+   "visual": {
+    "type": "quiz",
+    "kicker": "السؤال الأول",
+    "question": "ما أفضل [نوع مشروعك] في [مدينتك]؟"
+   },
+   "sfx": [
+    "keys"
+   ],
+   "hl": [],
+   "icons": [
+    {
+     "icon": "pin",
+     "at": 6
+    },
+    {
+     "icon": "list",
+     "at": 10
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🏪",
+     "at": 4
+    }
+   ]
+  },
+  {
+   "say": "الثاني: ماذا تعرف عن… اسم مشروعك؟ صحيح، أم قديم، أم غائب؟",
+   "visual": {
+    "type": "quiz",
+    "kicker": "السؤال الثاني",
+    "question": "ماذا تعرف عن [اسم مشروعك]؟"
+   },
+   "sfx": [
+    "keys"
+   ],
+   "hl": [],
+   "icons": [],
+   "emoji": [
+    {
+     "e": "🏪",
+     "at": 5
+    }
+   ]
+  },
+  {
+   "say": "الثالث: افحص المصادر التي يستشهد بها لغيرك. هذه أهدافك.",
+   "visual": {
+    "type": "sources",
+    "answer": "المُرشَّحون: …",
+    "sources": [
+     "الهدف 1",
+     "الهدف 2",
+     "الهدف 3"
+    ]
+   },
+   "sfx": [
+    {
+     "name": "zap",
+     "at": 0.7
+    },
+    {
+     "name": "zap",
+     "at": 0.96
+    },
+    {
+     "name": "zap",
+     "at": 1.22
+    }
+   ],
+   "hl": [
+    "أهدافك."
+   ],
+   "icons": [
+    {
+     "icon": "search",
+     "at": 1
+    },
+    {
+     "icon": "target",
+     "at": 8
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🔍",
+     "at": 1
+    },
+    {
+     "e": "🎯",
+     "at": 8
+    }
+   ]
+  },
+  {
+   "say": "الإجابات تتغيّر، فكرّر الاختبار شهريًّا وراقب الاتجاه.",
+   "visual": {
+    "type": "statement",
+    "text": "كرّرها *كل شهر.*<br>وراقب الاتجاه."
+   },
+   "sfx": [
+    "chime"
+   ],
+   "hl": [
+    "الاختبار",
+    "شهريًّا"
+   ],
+   "icons": [
+    {
+     "icon": "target",
+     "at": 3
+    },
+    {
+     "icon": "clock",
+     "at": 4
+    },
+    {
+     "icon": "chart",
+     "at": 6
+    }
+   ],
+   "emoji": [
+    {
+     "e": "🎯",
+     "at": 3
+    },
+    {
+     "e": "📈",
+     "at": 6
+    }
+   ],
+   "media": {
+    "kind": "stock",
+    "video": false,
+    "query": "calendar month planner",
+    "alt": [
+     "calendar pages"
+    ],
+    "mode": "bg"
+   }
+  },
+  {
+   "say": "ثلاثة أسماء. احرص أن يكون اسمك أحدها.",
+   "visual": {
+    "type": "chat",
+    "q": "ما أفضل طبيب أسنان قريب مني؟",
+    "answers": [
+     "عيادة الابتسامة المشرقة",
+     "مركز وسط المدينة للأسنان",
+     "استوديو اللؤلؤ للأسنان"
+    ],
+    "blur": true,
+    "shown": 3,
+    "emptySlot": "اسمك هنا"
+   },
+   "sfx": [
+    "rise",
+    {
+     "name": "hit",
+     "at": 1.0
+    }
+   ],
+   "hl": [
+    "ثلاثة",
+    "اسمك"
+   ],
+   "icons": [],
+   "emoji": []
+  },
+  {
+   "say": "عالم الذكاء الاصطناعي. الذكاء الاصطناعي من الآخر. اشترك حتى لا يفوتك القادم.",
+   "visual": {
+    "type": "outro",
+    "name": "عالم *الذكاء الاصطناعي*",
+    "tagline": "الذكاء الاصطناعي… من الآخر.",
+    "cta": "اشترك"
+   },
+   "sfx": [
+    "slice",
+    {
+     "name": "ding",
+     "at": 0.9
+    }
+   ],
+   "pause": 0.8,
+   "hl": [
+    "اشترك"
+   ],
+   "icons": [],
+   "emoji": [
+    {
+     "e": "🔔",
+     "at": 7
+    }
+   ]
+  }
+ ],
+ "speed": 0.6,
+ "provider": "gemini",
+ "style": "Read the following Modern Standard Arabic (fusha) text as a high-energy YouTube narrator: fast pace, punchy, exciting and confident, short pauses only, clear classical pronunciation:"
+}
