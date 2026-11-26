@@ -27,6 +27,9 @@ try:
 except OSError:
     sys.exit(0)  # previous run still busy (rendering)
 
+if not os.path.exists(SITE + '/index.html'):
+    open(SITE + '/index.html', 'w').write('<meta charset="utf-8"><meta http-equiv="refresh" content="30"><body style="background:#07060D;color:#fff;font-family:sans-serif;direction:rtl;padding:20px"><h2 style="color:#D4FF3A">🎬 الفيديوهات</h2><p>المحرك بيتجهّز… الصفحة هتتحدّث لوحدها.</p>')
+
 # ---------- 1) update + deploy ----------
 sh('git fetch -q origin main', cwd=R)
 new = sh('git rev-parse origin/main', cwd=R).stdout.strip()
