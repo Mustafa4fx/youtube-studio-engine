@@ -1,0 +1,5 @@
+{
+  "title": "فيديو 1 — نسخة 2: صوت متصل + أسرع + أقصر (EN + AR)",
+  "specs": ["specs/v1-en.json", "specs/v1-ar.json"],
+  "retryMinutes": 5
+}

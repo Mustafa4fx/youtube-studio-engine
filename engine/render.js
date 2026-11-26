@@ -2,7 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
-const { sh, duration, ensureSfx, tts, estimateWords, geminiBatch } = require('./lib');
+const { sh, duration, ensureSfx, tts, estimateWords, geminiBatch, geminiRequest } = require('./lib');
 
 const FPS = 30;
 
@@ -29,7 +29,53 @@ async function render(spec, outDir, opts = {}) {
   // voice cache + batch synthesis (6 beats per request) to stay inside the TTS request limits
   const cdir = path.join(process.env.CACHE_ROOT || (fs.existsSync('/out') ? '/out' : path.dirname(path.resolve(outDir))), 'tts-cache'); fs.mkdirSync(cdir, { recursive: true });
   const cacheOf = beat => path.join(cdir, require('crypto').createHash('sha1').update([spec.provider, spec.voice, spec.lang, spec.style, beat.rate || spec.rate, beat.say].join('|')).digest('hex') + (mock ? '.mock' : '') + '.mp3');
-  if (!mock && spec.provider === 'gemini') {
+  // ONE continuous narration for the whole video (natural flow), then Whisper word-alignment cuts it per beat
+  let continuousOk = false;
+  if (!mock && spec.provider === 'gemini' && spec.continuous !== false && !only) {
+    try {
+      const said = spec.beats.map(b => (b.say || '').trim());
+      const full = said.filter(Boolean).join('\n');
+      const tempo = spec.tempo || 1.1;
+      const key = require('crypto').createHash('sha1').update(['full', spec.voice, spec.style, tempo, full].join('|')).digest('hex');
+      const wav = path.join(cdir, 'full-' + key + '.wav');
+      if (!fs.existsSync(wav)) {
+        log('voice: one continuous narration');
+        const sys = (spec.style ? spec.style + ' ' : '') + 'Speak ONLY the user text, word for word, never these instructions. Read the whole text as ONE continuous, flowing, energetic narration: connect the sentences naturally, keep every pause short and tight, never a long pause.';
+        const pcm = await geminiRequest(full, spec.voice, sys, log);
+        if (!pcm) throw new Error('empty audio');
+        const raw = wav + '.pcm'; fs.writeFileSync(raw, pcm);
+        await sh('ffmpeg', ['-y', '-v', 'error', '-f', 's16le', '-ar', '24000', '-ac', '1', '-i', raw, '-af',
+          `silenceremove=start_periods=1:start_threshold=-45dB,silenceremove=stop_periods=-1:stop_duration=0.28:stop_threshold=-42dB,atempo=${tempo},aresample=48000`, wav + '.tmp.wav']);
+        fs.rmSync(raw); fs.renameSync(wav + '.tmp.wav', wav);
+      }
+      const aj = wav.replace(/\.wav$/, '.align.json');
+      if (!fs.existsSync(aj)) {
+        log('voice: aligning words (whisper)');
+        const bj = wav + '.beats.json'; fs.writeFileSync(bj, JSON.stringify(said));
+        const o = await sh('python3', [path.join(__dirname, 'align.py'), wav, bj, (spec.lang || 'en').slice(0, 2), aj], { env: { ...process.env, WHISPER_DIR: path.join(cdir, '..', '_models') } });
+        log(String(o).trim());
+      }
+      const al = JSON.parse(fs.readFileSync(aj, 'utf8'));
+      if (al.matched / Math.max(1, al.total_words) < 0.5) throw new Error(`alignment too weak (${al.matched}/${al.total_words})`);
+      const B = al.beats; const audioEnd = await duration(wav);
+      // cut points: middle of the gap between consecutive spoken beats
+      const starts = []; let prevEnd = 0;
+      for (let i = 0; i < B.length; i++) {
+        if (B[i].start == null) { starts.push(null); continue; }
+        starts.push(i === 0 ? 0 : (prevEnd + B[i].start) / 2); prevEnd = B[i].end;
+      }
+      const idx = starts.map((s, i) => s == null ? -1 : i).filter(i => i >= 0);
+      for (let n = 0; n < idx.length; n++) {
+        const i = idx[n]; const s0 = starts[i]; const s1 = n + 1 < idx.length ? starts[idx[n + 1]] : audioEnd;
+        const id = String(i).padStart(3, '0'); const vf = path.join(work, `v${id}.mp3`);
+        await sh('ffmpeg', ['-y', '-v', 'error', '-i', wav, '-ss', s0.toFixed(3), '-to', s1.toFixed(3), '-b:a', '192k', vf]);
+        fs.writeFileSync(vf.replace(/\.mp3$/, '.words.json'), JSON.stringify(B[i].words.map(w => ({ w: w.w, s: Math.max(0, w.s - s0), e: Math.max(0, w.e - s0) }))));
+      }
+      spec.lead = 0; spec.pause = 0; continuousOk = true;
+      log(`voice: continuous ok (${al.matched}/${al.total_words} words matched)`);
+    } catch (e) { if (/DAILY/.test(e.message)) throw e; log('continuous voice failed -> per-chunk: ' + e.message.slice(0, 300)); }
+  }
+  if (!continuousOk && !mock && spec.provider === 'gemini') {
     const todo = spec.beats.map((b, i) => ({ b, i })).filter(x => (!only || only.has(x.i)) && x.b.say && x.b.say.trim() && !fs.existsSync(cacheOf(x.b)));
     for (let k = 0; k < todo.length; k += 6) { const grp = todo.slice(k, k + 6);
       log(`voice batch ${k / 6 + 1}/${Math.ceil(todo.length / 6)}`);

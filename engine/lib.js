@@ -117,24 +117,35 @@ async function geminiRequest(text, voice, systemText, log, noVertex) {
   }
   return geminiRequestInner(text, voice, systemText, log, false);
 }
-async function geminiRequestInner(text, voice, systemText, log, vertex) { const key = vertex ? process.env.VERTEX_KEY : process.env.GEMINI_API_KEY; let last = '';
+async function geminiRequestInner(text, voice, systemText, log, vertex) {
+  const key = vertex ? process.env.VERTEX_KEY : process.env.GEMINI_API_KEY; let last = '';
+  const isAr = /[؀-ۿ]/.test(text); const langCode = isAr ? 'ar-EG' : 'en-US';
+  // body variants: some models reject systemInstruction or need an explicit language code
+  const variants = [{ sys: true, lc: false }, { sys: true, lc: true }, { sys: false, lc: true }, { sys: false, lc: false }];
+  const mkBody = v => { const sc = { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } }; if (v.lc) sc.languageCode = langCode;
+    const body = { contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { responseModalities: ['AUDIO'], speechConfig: sc } };
+    if (v.sys && systemText) body.systemInstruction = { parts: [{ text: systemText }] }; return body; };
   for (let attempt = 1; attempt <= 30; attempt++) {
-    const models = vertex ? (vertexModel ? [vertexModel] : VERTEX_MODELS.filter(x => !vertexBad.has(x))) : (geminiModel ? [geminiModel] : GEMINI_MODELS);
+    const models = vertex ? (vertexModel && !vertexBad.has(vertexModel) ? [vertexModel] : VERTEX_MODELS.filter(x => !vertexBad.has(x))) : (geminiModel ? [geminiModel] : GEMINI_MODELS);
     if (!models.length) break;
+    let waited = false;
     for (const m of models) {
-      const body = { contents: [{ role: 'user', parts: [{ text }] }], generationConfig: { responseModalities: ['AUDIO'], speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: voice } } } } };
-      if (systemText) body.systemInstruction = { parts: [{ text: systemText }] };
-      let r = null; for (const u of (vertex ? vertexUrls(m) : [`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`])) {
-        r = await fetch(u, { method: 'POST', headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); if (r.status !== 404) break; }
-      const j = await r.json().catch(() => ({})); const part = j?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
-      if (r.ok && part) { if (vertex) vertexModel = m; else geminiModel = m; log && log(`[tts] ok via ${vertex ? 'vertex' : 'gemini-api'} ${m}`); return Buffer.from(part.inlineData.data, 'base64'); }
-      const det = JSON.stringify(j.error || j); last = `${m} ${r.status} ${det.slice(0, 200)}`;
-      if (r.status === 400 && systemText && !vertex) return null; // caller falls back
-      if (r.status === 429) { const w = det.match(/"retryDelay":"(\d+)s"/); if (/PerDay/i.test(det)) throw new Error('Gemini TTS DAILY limit reached — ' + last);
-        log && log(`[tts] 429 waiting ${w ? w[1] : 30}s`); await new Promise(s => setTimeout(s, ((w ? +w[1] : 30) + 2) * 1000)); continue; }
-      if (r.status >= 500) { await new Promise(s => setTimeout(s, 10000 * attempt)); continue; }
-      if (vertex && (r.status === 404 || r.status === 403 || r.status === 400)) { log && log('[tts] ' + last); vertexBad.add(m); continue; }
-      throw new Error('Gemini TTS ' + last);
+      let bad400 = 0;
+      for (const v of (vertex ? variants : [variants[0]])) {
+        let r = null; for (const u of (vertex ? vertexUrls(m) : [`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`])) {
+          r = await fetch(u, { method: 'POST', headers: { 'x-goog-api-key': key, 'Content-Type': 'application/json' }, body: JSON.stringify(mkBody(v)) }); if (r.status !== 404) break; }
+        const j = await r.json().catch(() => ({})); const part = j?.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
+        if (r.ok && part) { if (vertex) vertexModel = m; else geminiModel = m; log && log(`[tts] ok via ${vertex ? 'vertex' : 'gemini-api'} ${m}${v.lc ? ' +lang' : ''}${v.sys ? '' : ' (no style)'}`); return Buffer.from(part.inlineData.data, 'base64'); }
+        const det = JSON.stringify(j.error || j); last = `${m} ${r.status} ${det.slice(0, 200)}`;
+        if (r.status === 400) { bad400++; if (!vertex && systemText) return null; continue; }
+        if (r.status === 429) { const w = det.match(/"retryDelay":"(\d+)s"/); if (/PerDay/i.test(det)) throw new Error('Gemini TTS DAILY limit reached — ' + last);
+          log && log(`[tts] 429 waiting ${w ? w[1] : 30}s`); await new Promise(s => setTimeout(s, ((w ? +w[1] : 30) + 2) * 1000)); waited = true; break; }
+        if (r.status >= 500) { await new Promise(s => setTimeout(s, 10000 * attempt)); waited = true; break; }
+        if (vertex && (r.status === 404 || r.status === 403)) { bad400 = 99; break; }
+        throw new Error('Gemini TTS ' + last);
+      }
+      if (waited) break;
+      if (vertex && bad400 >= 1) { log && log('[tts] ' + last + ' -> next model'); vertexBad.add(m); if (vertexModel === m) vertexModel = null; }
     }
   }
   throw new Error('Gemini TTS failed: ' + last);
@@ -197,4 +208,4 @@ function estimateWords(text, dur) {
   return toks.map((t, i) => { const len = usable * wt[i] / sum; const pausePart = (/[.!?؟]$/.test(t) ? 7 : /[,،:;…]$/.test(t) ? 4 : 0) * usable / sum;
     const w = { w: t, s: acc, e: acc + len - pausePart }; acc += len; return w; });
 }
-module.exports = { sh, duration, ensureSfx, tts, estimateWords, geminiBatch };
+module.exports = { sh, duration, ensureSfx, tts, estimateWords, geminiBatch, geminiRequest };

@@ -173,7 +173,7 @@
    }
   },
   {
-   "say": "Stick around. At the end, a three-question test shows if ChatGPT even knows you exist.",
+   "say": "Stay till the end: a three-question test shows if ChatGPT even knows you exist.",
    "visual": {
     "type": "statement",
     "text": "The *3-question test*<br>at the end"
@@ -293,32 +293,7 @@
    }
   },
   {
-   "say": "And the answer is short. Brutally short.",
-   "visual": {
-    "type": "statement",
-    "text": "The answer is short.<br>*Brutally short.*"
-   },
-   "sfx": [
-    {
-     "name": "hit",
-     "at": 0.4
-    }
-   ],
-   "hl": [
-    "short.",
-    "Brutally",
-    "short."
-   ],
-   "icons": [],
-   "emoji": [
-    {
-     "e": "⚡",
-     "at": 4
-    }
-   ]
-  },
-  {
-   "say": "A SOCi study checked three hundred fifty thousand locations. ChatGPT recommended about one point two percent.",
+   "say": "A SOCi study of three hundred fifty thousand locations: ChatGPT recommended just one point two percent.",
    "visual": {
     "type": "dots",
     "lit": 10,
@@ -516,7 +491,7 @@
    }
   },
   {
-   "say": "Verify it with your phone, email, website domain, or Shopify. Plus an ID check.",
+   "say": "Verify with phone, email, domain, or Shopify, plus an ID check. Then fix your details.",
    "visual": {
     "type": "steps",
     "items": [
@@ -575,46 +550,7 @@
    ]
   },
   {
-   "say": "Fix your details. And finally, see the numbers.",
-   "visual": {
-    "type": "statement",
-    "text": "Fix your details.<br>See *the numbers.*"
-   },
-   "sfx": [
-    "zap"
-   ],
-   "hl": [
-    "numbers."
-   ],
-   "icons": [
-    {
-     "icon": "eye",
-     "at": 5
-    },
-    {
-     "icon": "chart",
-     "at": 7
-    }
-   ],
-   "emoji": [
-    {
-     "e": "📈",
-     "at": 7
-    }
-   ],
-   "media": {
-    "kind": "stock",
-    "video": true,
-    "query": "analytics dashboard screen",
-    "alt": [
-     "charts graphs screen",
-     "stock market screen"
-    ],
-    "mode": "bg"
-   }
-  },
-  {
-   "say": "Mentions. Clicks to your site. And the topics where you show up.",
+   "say": "And finally, the numbers: mentions, clicks, and the topics where you show up.",
    "visual": {
     "type": "cards",
     "items": [
@@ -670,7 +606,7 @@
    "emoji": []
   },
   {
-   "say": "Part two: Business Agents. A branded chat assistant inside ChatGPT. For now? US online stores only.",
+   "say": "Part two: Business Agents. Your branded assistant inside ChatGPT. For now, US online stores only.",
    "visual": {
     "type": "cards",
     "items": [
@@ -779,7 +715,7 @@
    ]
   },
   {
-   "say": "Claiming your profile does not get you recommended.",
+   "say": "Claiming your profile does not get you recommended. It just fixes your info.",
    "visual": {
     "type": "statement",
     "text": "Claiming your profile<br>does *NOT* get you recommended"
@@ -807,42 +743,7 @@
    ]
   },
   {
-   "say": "It fixes your info and shows the scoreboard. That's it.",
-   "visual": {
-    "type": "cards",
-    "items": [
-     {
-      "title": "✓ It does",
-      "lines": [
-       "Fix your information",
-       "Show your numbers"
-      ]
-     },
-     {
-      "title": "✗ It doesn't",
-      "lines": [
-       "Boost your mentions",
-       "Make ChatGPT pick you"
-      ]
-     }
-    ]
-   },
-   "sfx": [
-    "whoosh"
-   ],
-   "hl": [
-    "scoreboard."
-   ],
-   "icons": [
-    {
-     "icon": "chart",
-     "at": 7
-    }
-   ],
-   "emoji": []
-  },
-  {
-   "say": "And once it's published, you can't delete it. Get it right the first time.",
+   "say": "And once it's published, you can't delete it. Get it right.",
    "visual": {
     "type": "cards",
     "items": [
@@ -899,32 +800,7 @@
    }
   },
   {
-   "say": "So what actually works?",
-   "visual": {
-    "type": "statement",
-    "text": "So what *is*<br>the magic button?"
-   },
-   "sfx": [
-    "rise"
-   ],
-   "hl": [
-    "works?"
-   ],
-   "icons": [
-    {
-     "icon": "check",
-     "at": 3
-    }
-   ],
-   "emoji": [
-    {
-     "e": "✅",
-     "at": 3
-    }
-   ]
-  },
-  {
-   "say": "ChatGPT leans on sources. Websites, review platforms, lists, articles. The places people already talk about you.",
+   "say": "So what actually works? Sources. Websites, review platforms, lists, articles. The places people talk about you.",
    "visual": {
     "type": "sources",
     "answer": "Top 3 picks…",
@@ -988,44 +864,7 @@
    }
   },
   {
-   "say": "So play detective. Three moves.",
-   "visual": {
-    "type": "title",
-    "kicker": "The fastest path",
-    "title": "Detective<br>*work*"
-   },
-   "sfx": [
-    "whoosh"
-   ],
-   "hl": [
-    "detective.",
-    "Three",
-    "moves."
-   ],
-   "icons": [
-    {
-     "icon": "search",
-     "at": 2
-    }
-   ],
-   "emoji": [
-    {
-     "e": "🔍",
-     "at": 2
-    }
-   ],
-   "media": {
-    "kind": "stock",
-    "video": false,
-    "query": "magnifying glass",
-    "alt": [
-     "magnifier on paper"
-    ],
-    "mode": "bg"
-   }
-  },
-  {
-   "say": "One: find the questions your competitors win. Two: check the sources ChatGPT cites. Three: get into those same sources, with real info and real reviews.",
+   "say": "Play detective. One: find the questions your competitors win. Two: check the sources ChatGPT cites. Three: get into those sources, with real info and real reviews.",
    "visual": {
     "type": "steps",
     "items": [
@@ -1076,7 +915,7 @@
    ]
   },
   {
-   "say": "Keep your name, address and hours identical everywhere.",
+   "say": "Keep your name, address and hours identical everywhere. Matching facts are easier to trust.",
    "visual": {
     "type": "cards",
     "items": [
@@ -1144,27 +983,7 @@
    }
   },
   {
-   "say": "Matching facts are easier for AI to trust.",
-   "visual": {
-    "type": "statement",
-    "text": "Matching facts =<br>*easier to trust*"
-   },
-   "sfx": [
-    "ding"
-   ],
-   "hl": [
-    "trust."
-   ],
-   "icons": [],
-   "emoji": [
-    {
-     "e": "🧠",
-     "at": 5
-    }
-   ]
-  },
-  {
-   "say": "And answer your customers' real questions on your own site. If you never say it, no AI can repeat it.",
+   "say": "Answer your customers' real questions on your own site. If you never say it, no AI can repeat it.",
    "visual": {
     "type": "statement",
     "text": "If you don't say it anywhere,<br>*no AI can repeat it.*"
@@ -1299,7 +1118,7 @@
    ]
   },
   {
-   "say": "Three. Check the sources it cites for others. Those are your targets.",
+   "say": "Three. Check the sources it cites for others. Those are your targets. Rerun it monthly.",
    "visual": {
     "type": "sources",
     "answer": "Recommended: …",
@@ -1348,49 +1167,6 @@
      "at": 11
     }
    ]
-  },
-  {
-   "say": "Answers shift, so rerun it monthly and watch the trend.",
-   "visual": {
-    "type": "statement",
-    "text": "Repeat *every month.*<br>Watch the trend."
-   },
-   "sfx": [
-    "chime"
-   ],
-   "hl": [
-    "monthly",
-    "trend."
-   ],
-   "icons": [
-    {
-     "icon": "clock",
-     "at": 5
-    },
-    {
-     "icon": "chart",
-     "at": 9
-    }
-   ],
-   "emoji": [
-    {
-     "e": "⏰",
-     "at": 5
-    },
-    {
-     "e": "📈",
-     "at": 9
-    }
-   ],
-   "media": {
-    "kind": "stock",
-    "video": false,
-    "query": "calendar month planner",
-    "alt": [
-     "calendar pages"
-    ],
-    "mode": "bg"
-   }
   },
   {
    "say": "Three names. Make sure one is yours.",
@@ -1454,7 +1230,9 @@
    ]
   }
  ],
- "speed": 0.6,
+ "speed": 0.5,
  "provider": "gemini",
- "style": "Read this as a high-energy YouTube narrator: fast pace, punchy, exciting and confident, short pauses only:"
+ "style": "You are a high-energy, hype YouTube narrator. Fast pace, punchy, exciting, confident, building momentum from line to line.",
+ "tempo": 1.12,
+ "continuous": true
 }
