@@ -1,5 +1,0 @@
-{
-  "title": "فيديو 1 — نسخة 3: حركة في كل لحظة (EN + AR)",
-  "specs": ["specs/v1-en.json", "specs/v1-ar.json"],
-  "retryMinutes": 5
-}
