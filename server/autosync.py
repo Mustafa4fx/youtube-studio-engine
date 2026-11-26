@@ -81,7 +81,7 @@ def write_page():
                 if os.path.exists(lp):
                     lines = [l for l in open(lp).read().splitlines() if l.strip()]
                     last = lines[-1][-140:] if lines else ''
-                label = 'جاري التصيير' if s.startswith('rendering') else ('خطأ — هيعيد المحاولة لوحده' if s.startswith('error') else 'في الطابور')
+                label = 'جاري التصدير' if s.startswith('rendering') else ('خطأ — هيعيد المحاولة لوحده' if s.startswith('error') else 'في الطابور')
                 rows.append(f'<div class="wait">⏳ {html.escape(base)} — {label}<small>{html.escape(last)}</small></div>')
         cards.append(f'<div class="c"><b>{html.escape(job.get("title", jid))}</b>{"".join(rows)}</div>')
     page = f'''<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="60">
