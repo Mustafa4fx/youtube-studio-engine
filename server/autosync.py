@@ -63,6 +63,34 @@ for name in sorted(os.listdir(jdir)) if os.path.isdir(jdir) else []:
         log(f'bad job {name}: {e}'); continue
     job['_id'] = name[:-5]; jobs.append(job)
 
+def write_page():
+    cards = []
+    for job in reversed(jobs):
+        jid = job['_id']; rows = []
+        for spec in job.get('specs', []):
+            base = os.path.basename(spec)[:-5]; s = status_of(f'{jid}/{base}')
+            d = os.path.join(SITE, jid, base); mp4 = [f for f in os.listdir(d) if f.endswith('.mp4')] if os.path.isdir(d) else []
+            if s.startswith('done') and mp4:
+                rows.append(f'<a class="ok" href="{jid}/{base}/{mp4[0]}">▶ {html.escape(base)}</a>')
+            else:
+                last = ''
+                lp = os.path.join(d, 'log.txt')
+                if os.path.exists(lp):
+                    lines = [l for l in open(lp).read().splitlines() if l.strip()]
+                    last = lines[-1][-140:] if lines else ''
+                label = 'جاري التصيير' if s.startswith('rendering') else ('خطأ — هيعيد المحاولة لوحده' if s.startswith('error') else 'في الطابور')
+                rows.append(f'<div class="wait">⏳ {html.escape(base)} — {label}<small>{html.escape(last)}</small></div>')
+        cards.append(f'<div class="c"><b>{html.escape(job.get("title", jid))}</b>{"".join(rows)}</div>')
+    page = f'''<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="60">
+    <title>Studio</title><style>body{{margin:0;padding:14px;background:#07060D;color:#fff;font-family:system-ui,sans-serif;direction:rtl}}h1{{color:#D4FF3A;font-size:22px}}
+    .c{{background:#14121F;border-radius:16px;padding:14px;margin:12px 0}}.c b{{display:block;font-size:17px;margin-bottom:8px}}
+    a.ok{{display:block;background:#D4FF3A;color:#000;font-weight:800;padding:12px;border-radius:12px;margin:8px 0;text-decoration:none;direction:ltr;text-align:left}}
+    .wait{{background:#221F33;padding:10px;border-radius:12px;margin:8px 0}}small{{display:block;color:#999;margin-top:4px;direction:ltr;text-align:left;font-size:11px}}</style>
+    <h1>🎬 الفيديوهات</h1><p style="color:#999">الصفحة بتتحدّث لوحدها كل دقيقة · آخر تحديث {datetime.datetime.now():%H:%M}</p>{"".join(cards) or "<p>مفيش شغل لسه</p>"}'''
+    open(SITE + '/index.html', 'w').write(page)
+
+
+write_page()  # show 'queued/rendering' right away
 for job in jobs:
     jid = job['_id']; st = os.path.join(STATE, jid); os.makedirs(st, exist_ok=True)
     if os.path.exists(st + '/done'):
@@ -77,35 +105,14 @@ for job in jobs:
             continue
         log(f'render {jid} {base}')
         with open(st + '/log.txt', 'a') as lf:
-            r = sh(f'docker compose exec -T engine node run.js /specs/{os.path.basename(spec)} /out/{out}', cwd=A, out=lf)
-        if r.returncode != 0 or not status_of(out).startswith('done'):
+            pr = subprocess.Popen(f'docker compose exec -T engine node run.js /specs/{os.path.basename(spec)} /out/{out}', cwd=A, shell=True, stdout=lf, stderr=subprocess.STDOUT)
+            while pr.poll() is None:  # refresh the status page every minute while rendering
+                time.sleep(60); write_page()
+        if pr.returncode != 0 or not status_of(out).startswith('done'):
             ok = False; open(fa, 'w').write(str(time.time())); log(f'failed {jid} {base} (will retry)'); break
     if ok:
         open(st + '/done', 'w').write('1'); log(f'job done {jid}')
     break  # one job per run; cron starts the next
 
-# ---------- 3) status page ----------
-cards = []
-for job in reversed(jobs):
-    jid = job['_id']; rows = []
-    for spec in job.get('specs', []):
-        base = os.path.basename(spec)[:-5]; s = status_of(f'{jid}/{base}')
-        d = os.path.join(SITE, jid, base); mp4 = [f for f in os.listdir(d) if f.endswith('.mp4')] if os.path.isdir(d) else []
-        if s.startswith('done') and mp4:
-            rows.append(f'<a class="ok" href="{jid}/{base}/{mp4[0]}">▶ {html.escape(base)}</a>')
-        else:
-            last = ''
-            lp = os.path.join(d, 'log.txt')
-            if os.path.exists(lp):
-                lines = [l for l in open(lp).read().splitlines() if l.strip()]
-                last = lines[-1][-140:] if lines else ''
-            label = 'جاري التصيير' if s.startswith('rendering') else ('خطأ — هيعيد المحاولة لوحده' if s.startswith('error') else 'في الطابور')
-            rows.append(f'<div class="wait">⏳ {html.escape(base)} — {label}<small>{html.escape(last)}</small></div>')
-    cards.append(f'<div class="c"><b>{html.escape(job.get("title", jid))}</b>{"".join(rows)}</div>')
-page = f'''<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="refresh" content="60">
-<title>Studio</title><style>body{{margin:0;padding:14px;background:#07060D;color:#fff;font-family:system-ui,sans-serif;direction:rtl}}h1{{color:#D4FF3A;font-size:22px}}
-.c{{background:#14121F;border-radius:16px;padding:14px;margin:12px 0}}.c b{{display:block;font-size:17px;margin-bottom:8px}}
-a.ok{{display:block;background:#D4FF3A;color:#000;font-weight:800;padding:12px;border-radius:12px;margin:8px 0;text-decoration:none;direction:ltr;text-align:left}}
-.wait{{background:#221F33;padding:10px;border-radius:12px;margin:8px 0}}small{{display:block;color:#999;margin-top:4px;direction:ltr;text-align:left;font-size:11px}}</style>
-<h1>🎬 الفيديوهات</h1><p style="color:#999">الصفحة بتتحدّث لوحدها كل دقيقة · آخر تحديث {datetime.datetime.now():%H:%M}</p>{"".join(cards) or "<p>مفيش شغل لسه</p>"}'''
-open(SITE + '/index.html', 'w').write(page)
+
+write_page()

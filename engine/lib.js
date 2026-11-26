@@ -1,5 +1,6 @@
 // Shared helpers: shell, ffprobe, SFX synthesis, Azure TTS
 const { execFile } = require('child_process');
+try { const cfg = require('./config.json'); for (const [k, v] of Object.entries(cfg)) if (process.env[k] == null || k === 'TTS_BACKEND') process.env[k] = String(v); } catch (e) {}
 const fs = require('fs');
 const path = require('path');
 
