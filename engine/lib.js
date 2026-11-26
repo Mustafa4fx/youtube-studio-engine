@@ -109,8 +109,15 @@ const VERTEX_MODELS = (process.env.VERTEX_TTS_MODELS || 'gemini-3.8-flash-tts,ge
 const VERTEX_PROJECT = process.env.VERTEX_PROJECT || '658203090079';
 let vertexModel = null; const vertexBad = new Set();
 function vertexUrls(m) { return [`https://aiplatform.googleapis.com/v1/projects/${VERTEX_PROJECT}/locations/global/publishers/google/models/${m}:generateContent`, `https://aiplatform.googleapis.com/v1/publishers/google/models/${m}:generateContent`]; }
-async function geminiRequest(text, voice, systemText, log) {
-  const vertex = process.env.TTS_BACKEND === 'vertex' && !!process.env.VERTEX_KEY; const key = vertex ? process.env.VERTEX_KEY : process.env.GEMINI_API_KEY; let last = '';
+async function geminiRequest(text, voice, systemText, log, noVertex) {
+  // Vertex first (no daily cap); if it can't work at all, fall back to the Gemini API key automatically
+  if (!noVertex && process.env.TTS_BACKEND === 'vertex' && process.env.VERTEX_KEY && !global.__vertexDead) {
+    try { return await geminiRequestInner(text, voice, systemText, log, true); }
+    catch (e) { if (/DAILY/.test(e.message)) throw e; global.__vertexDead = true; log && log('[tts] VERTEX unavailable -> using Gemini API key: ' + e.message.slice(0, 300)); }
+  }
+  return geminiRequestInner(text, voice, systemText, log, false);
+}
+async function geminiRequestInner(text, voice, systemText, log, vertex) { const key = vertex ? process.env.VERTEX_KEY : process.env.GEMINI_API_KEY; let last = '';
   for (let attempt = 1; attempt <= 30; attempt++) {
     const models = vertex ? (vertexModel ? [vertexModel] : VERTEX_MODELS.filter(x => !vertexBad.has(x))) : (geminiModel ? [geminiModel] : GEMINI_MODELS);
     if (!models.length) break;

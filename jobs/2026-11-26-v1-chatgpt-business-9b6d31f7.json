@@ -1,5 +1,5 @@
 {
   "title": "فيديو 1 — لماذا يرشّح ChatGPT منافسيك… وليس أنت؟! (EN + AR)",
   "specs": ["specs/v1-en.json", "specs/v1-ar.json"],
-  "retryMinutes": 60
+  "retryMinutes": 5
 }
