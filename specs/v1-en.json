@@ -717,8 +717,21 @@
   {
    "say": "Claiming your profile does not get you recommended. It just fixes your info.",
    "visual": {
-    "type": "statement",
-    "text": "Claiming your profile<br>does *NOT* get you recommended"
+    "type": "versus",
+    "left": {
+     "title": "✗ Claiming does NOT",
+     "items": [
+      "Get you recommended",
+      "Add mentions"
+     ]
+    },
+    "right": {
+     "title": "✓ It only",
+     "items": [
+      "Fixes your info",
+      "Shows your numbers"
+     ]
+    }
    },
    "sfx": [
     {
@@ -1023,10 +1036,21 @@
   {
    "say": "Now the test. Open ChatGPT and ask three questions.",
    "visual": {
-    "type": "quiz",
-    "kicker": "The 3-question test",
-    "question": "Ready?",
-    "timer": true
+    "type": "phone",
+    "messages": [
+     {
+      "me": true,
+      "text": "Best [your business] in [your city]?"
+     },
+     {
+      "me": true,
+      "text": "What do you know about [your name]?"
+     },
+     {
+      "me": false,
+      "text": "Here are the top 3…"
+     }
+    ]
    },
    "sfx": [
     "tick"
