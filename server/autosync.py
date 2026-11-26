@@ -34,21 +34,28 @@ if not os.path.exists(SITE + '/index.html'):
 sh('git fetch -q origin main', cwd=R)
 new = sh('git rev-parse origin/main', cwd=R).stdout.strip()
 deployed = open(A + '/.engine_rev').read().strip() if os.path.exists(A + '/.engine_rev') else ''
+DEPLOY_ERR = ''
 if new and new != deployed:
-    sh('git reset -q --hard origin/main', cwd=R)
-    os.makedirs(A + '/engine/specs', exist_ok=True)
-    for f in os.listdir(R + '/engine'):
-        shutil.copy(os.path.join(R, 'engine', f), os.path.join(A, 'engine', f))
-    for f in os.listdir(R + '/specs'):
-        shutil.copy(os.path.join(R, 'specs', f), os.path.join(A, 'engine', 'specs', f))
-    if os.path.exists(R + '/server/fonts.html'):
-        shutil.copy(R + '/server/fonts.html', SITE + '/fonts.html')
-    b = sh('docker compose build -q engine && docker compose up -d engine', cwd=A)
-    if b.returncode == 0:
-        open(A + '/.engine_rev', 'w').write(new)
-        log(f'deployed {new[:7]}')
-    else:
-        log('BUILD FAILED\n' + b.stdout[-2000:])
+    try:
+        sh('git reset -q --hard origin/main', cwd=R)
+        os.makedirs(A + '/engine/specs', exist_ok=True)
+        def put(src, dst):  # files AND folders (e.g. engine/sfx)
+            if os.path.isdir(src): shutil.copytree(src, dst, dirs_exist_ok=True)
+            else: shutil.copy(src, dst)
+        for f in os.listdir(R + '/engine'):
+            put(os.path.join(R, 'engine', f), os.path.join(A, 'engine', f))
+        for f in os.listdir(R + '/specs'):
+            put(os.path.join(R, 'specs', f), os.path.join(A, 'engine', 'specs', f))
+        if os.path.exists(R + '/server/fonts.html'):
+            shutil.copy(R + '/server/fonts.html', SITE + '/fonts.html')
+        b = sh('timeout 2400 docker compose build -q engine && docker compose up -d engine', cwd=A)
+        if b.returncode == 0:
+            open(A + '/.engine_rev', 'w').write(new)
+            log(f'deployed {new[:7]}')
+        else:
+            DEPLOY_ERR = 'build failed: ' + b.stdout[-300:]; log('BUILD FAILED\n' + b.stdout[-2000:])
+    except Exception as e:
+        DEPLOY_ERR = f'deploy error: {e}'; log(DEPLOY_ERR)
 
 # ---------- 2) jobs ----------
 def status_of(out_dir):
@@ -89,7 +96,7 @@ def write_page():
     .c{{background:#14121F;border-radius:16px;padding:14px;margin:12px 0}}.c b{{display:block;font-size:17px;margin-bottom:8px}}
     a.ok{{display:block;background:#D4FF3A;color:#000;font-weight:800;padding:12px;border-radius:12px;margin:8px 0;text-decoration:none;direction:ltr;text-align:left}}
     .wait{{background:#221F33;padding:10px;border-radius:12px;margin:8px 0}}small{{display:block;color:#999;margin-top:4px;direction:ltr;text-align:left;font-size:11px}}</style>
-    <h1>🎬 الفيديوهات</h1><p style="color:#999">الصفحة بتتحدّث لوحدها كل دقيقة · آخر تحديث {datetime.datetime.now():%H:%M}</p>{"".join(cards) or "<p>مفيش شغل لسه</p>"}'''
+    <h1>🎬 الفيديوهات</h1><p style="color:#999">الصفحة بتتحدّث لوحدها كل دقيقة · آخر تحديث {datetime.datetime.now():%H:%M} · نسخة المحرك {(open(A + "/.engine_rev").read().strip()[:7] if os.path.exists(A + "/.engine_rev") else "-")}</p>{("<p style=color:#f66>⚠ " + html.escape(DEPLOY_ERR) + "</p>") if DEPLOY_ERR else ""}{"".join(cards) or "<p>مفيش شغل لسه</p>"}'''
     open(SITE + '/index.html', 'w').write(page)
 
 
@@ -109,8 +116,12 @@ for job in jobs:
         log(f'render {jid} {base}')
         with open(st + '/log.txt', 'a') as lf:
             pr = subprocess.Popen(f'docker compose exec -T engine node run.js /specs/{os.path.basename(spec)} /out/{out}', cwd=A, shell=True, stdout=lf, stderr=subprocess.STDOUT)
+            t0 = time.time()
             while pr.poll() is None:  # refresh the status page every minute while rendering
-                time.sleep(60); write_page()
+                time.sleep(60)
+                try: write_page()
+                except Exception as e: log(f'page error {e}')
+                if time.time() - t0 > 3 * 3600: pr.kill(); log('render timeout'); break
         if pr.returncode != 0 or not status_of(out).startswith('done'):
             ok = False; open(fa, 'w').write(str(time.time())); log(f'failed {jid} {base} (will retry)'); break
     if ok:
