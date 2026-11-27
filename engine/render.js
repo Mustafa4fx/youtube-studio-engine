@@ -145,7 +145,7 @@ async function render(spec, outDir, opts = {}) {
         const cf = cacheOf(beat);
         if (!fs.existsSync(cf)) await tts({ text: beat.say, voice: spec.voice, lang: spec.lang, rate: beat.rate || spec.rate, out: cf + '.tmp.mp3', mock, provider: spec.provider, style: spec.style }).then(() => fs.renameSync(cf + '.tmp.mp3', cf));
         if (continuousOk) fs.copyFileSync(cf, voiceFile);
-        else await sh('ffmpeg', ['-y', '-v', 'error', '-i', cf, '-af', 'silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=stop_periods=-1:stop_duration=0.25:stop_threshold=-42dB', '-b:a', '192k', voiceFile]).catch(() => fs.copyFileSync(cf, voiceFile));
+        else await sh('ffmpeg', ['-y', '-v', 'error', '-i', cf, '-af', 'silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=stop_periods=-1:stop_duration=0.25:stop_threshold=-42dB', '-b:a', '192k', voiceFile]).then(async () => { if ((await duration(voiceFile).catch(() => 0)) < 0.3) fs.copyFileSync(cf, voiceFile); }).catch(() => fs.copyFileSync(cf, voiceFile));
       }
     }
     const lead = beat.lead ?? spec.lead ?? 0.06, pad = beat.pause ?? spec.pause ?? 0.12;
@@ -172,7 +172,12 @@ async function render(spec, outDir, opts = {}) {
     // auto sfx: whoosh on every cut + pop on each emphasised word / icon
     const hl = new Set((beat.hl || []).map(x => x.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '')));
     const auto = [{ name: 'whoosh', at: 0, vol: 0.35 }];
-    for (const w of words) { const n = w.w.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ''); if (hl.has(n) || /\d/.test(w.w)) auto.push({ name: 'pop', at: w.s / 1000 / (spec.speed || 1), vol: 0.45 }); }
+    const nrm = x => String(x).toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+    if (Array.isArray(beat.screen) && beat.screen.length) { // keyword captions: a punchy pop each time a phrase lands
+      let pos = 0; beat.screen.forEach((txt, k) => { const first = nrm(String(txt).replace(/[*~]/g, '').split(/\s+/).find(t => nrm(t)) || '');
+        let t = null; for (let j = pos; j < words.length; j++) if (first && nrm(words[j].w) === first) { t = words[j].s; pos = j + 1; break; }
+        if (t != null && t > 120) auto.push({ name: k % 2 ? 'zap' : 'pop', at: Math.max(0, t - 60) / 1000 / (spec.speed || 1), vol: 0.5 }); });
+    } else for (const w of words) { const n = nrm(w.w); if (hl.has(n) || /\d/.test(w.w)) auto.push({ name: 'pop', at: w.s / 1000 / (spec.speed || 1), vol: 0.45 }); }
     (beat.icons || []).forEach((ic, j, arr) => { const wi = (typeof ic === 'object' && ic.at != null) ? ic.at : Math.floor((j + 0.5) * words.length / Math.max(1, arr.length)); const w = words[Math.min(words.length - 1, Math.max(0, wi))]; if (w) auto.push({ name: 'zap', at: w.s / 1000 / (spec.speed || 1), vol: 0.4 }); });
     words.forEach((w, i) => { if (i < words.length - 1 && /[.!?؟…:]$/.test(w.w)) auto.push({ name: 'whoosh', at: (words[i + 1].s - 60) / 1000 / (spec.speed || 1), vol: 0.28 }); });
     beat.sfx = [...(beat.sfx || []), ...auto];

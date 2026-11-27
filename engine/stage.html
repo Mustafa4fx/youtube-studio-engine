@@ -89,6 +89,15 @@
   .flash { position:absolute; inset:0; background:var(--accent); opacity:0; mix-blend-mode:overlay; pointer-events:none; }
   .flash.w { background:#fff; mix-blend-mode:normal; }
   .kcap { position:absolute; left:0; right:0; bottom:58px; display:flex; justify-content:center; pointer-events:none; }
+  /* keyword captions: only the strongest words, big and bold */
+  .kphr { position:absolute; left:0; right:0; bottom:96px; display:grid; place-items:end center; pointer-events:none; z-index:40; }
+  .kphr .ph { grid-area:1/1; }
+  #stage.v .kphr { bottom:330px; }
+  .kphr .ph { font-family:var(--fh); font-weight:900; font-size:92px; line-height:1.08; color:#fff; text-align:center; max-width:1600px;
+    text-shadow:0 8px 34px rgba(0,0,0,.75), 0 2px 0 rgba(0,0,0,.5); padding:0 30px; }
+  #stage.v .kphr .ph { font-size:100px; max-width:960px; }
+  .kphr .ph .hot { color:#0B0A12; background:var(--accent); padding:0 .18em; border-radius:.16em; box-shadow:0 10px 40px rgba(0,0,0,.45); display:inline-block; }
+  .kphr .ph .hot.red { color:#fff; background:var(--danger); }
   #stage.v .kcap { bottom:330px; }
   .chunk { position:absolute; bottom:0; display:flex; flex-wrap:wrap; justify-content:center; gap:6px 16px; max-width:1640px; padding:0 40px;
            font-family:var(--fh); font-weight:800; font-size:66px; line-height:1.15; text-transform:none; }
@@ -311,8 +320,22 @@ function kinetic(beat, theme, vertical, tm, st, cam, fit, L) {
     raw(p.firstChild,[{transform:'translateY(2px)'},{transform:'translateY(-4px)'}], 2600, t, 'cubic-bezier(.37,0,.63,1)', {iterations:Infinity, direction:'alternate'});
     const bu = el('div','burst',null,st); bu.style.left = (x+75)+'px'; bu.style.top = (y+75)+'px';
     raw(bu,[{transform:'scale(0)', opacity:1},{transform:'scale(14)', opacity:0}], 450, t, 'cubic-bezier(.2,.8,.2,1)'); });
-  // --- karaoke captions (skip when the visual already shows the words)
-  const vtype = beat.media ? 'media' : (beat.visual||{}).type; const showCap = beat.caption !== false && words.length && !['statement','glitch','outro'].includes(vtype);
+  // --- KEYWORD captions: beat.screen = ["Your *name?*", "*losing* customers"] -> only the strongest words, timed to when they're said
+  if (Array.isArray(beat.screen) && beat.screen.length) {
+    const box = el('div','kphr',null,st); let pos = 0; const n = beat.screen.length; const starts = [];
+    beat.screen.forEach((txt, k) => { const first = norm(String(txt).replace(/[*~]/g,'').split(/\s+/).find(t=>norm(t)) || '');
+      let t = null; for (let j = pos; j < words.length; j++) { if (first && norm(words[j].w) === first) { t = words[j].s; pos = j + 1; break; } }
+      if (t == null) t = k === 0 ? 0 : Math.round(TOT * k / n); starts.push(Math.max(0, t - 90)); });
+    for (let k = 1; k < n; k++) if (starts[k] <= starts[k-1] + 250) starts[k] = starts[k-1] + 250;
+    beat.screen.forEach((txt, k) => { const s0 = starts[k], e0 = k + 1 < n ? starts[k+1] : TOT + 200;
+      const ph = el('div','ph', String(txt).replace(/</g,'&lt;').replace(/~([^~]+)~/g,'<span class="hot red">$1</span>').replace(/\*([^*]+)\*/g,'<span class="hot">$1</span>'), box);
+      raw(ph, windowKF(s0, e0, TOT, {opacity:1, transform:'translateY(0) scale(1)'}, {opacity:0, transform:'translateY(26px) scale(.9)'}, 80), TOT, 0, 'linear');
+      ph.querySelectorAll('.hot').forEach((h, q) => raw(h, [{transform:'scale(.6) rotate(-3deg)', opacity:0},{transform:'scale(1.05) rotate(-1deg)', opacity:1, offset:.7},{transform:'scale(1) rotate(-1deg)', opacity:1}], 340, s0 + 60 + q * 140, 'cubic-bezier(.22,1,.36,1)'));
+    });
+    fit.classList.add('withcap');
+  }
+  // --- karaoke captions (skip when the visual already shows the words, or when keyword captions are used)
+  const vtype = beat.media ? 'media' : (beat.visual||{}).type; const showCap = !(Array.isArray(beat.screen) && beat.screen.length) && beat.caption !== false && words.length && !['statement','glitch','outro'].includes(vtype);
   if (showCap) { fit.classList.add('withcap'); const cap = el('div','kcap',null,st);
     const max = vertical ? 4 : 6; const chunks = []; let cur = [];
     words.forEach((w,i)=>{ cur.push(w); const end = /[.!?؟،,:;…]$/.test(w.w) || cur.length >= max; if (end) { chunks.push(cur); cur = []; } }); if (cur.length) chunks.push(cur);

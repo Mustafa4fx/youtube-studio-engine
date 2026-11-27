@@ -1,0 +1,5 @@
+{
+  "title": "فيديو 1 — النسخة الجديدة: هوك 1 + سكريبت مباشر + كلام الشاشة كلمات قوية بس (EN + AR)",
+  "specs": ["specs/v2-en.json", "specs/v2-ar.json"],
+  "retryMinutes": 5
+}

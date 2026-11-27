@@ -55,7 +55,14 @@ sh('git fetch -q origin main', cwd=R)
 new = sh('git rev-parse origin/main', cwd=R).stdout.strip()
 deployed = open(A + '/.engine_rev').read().strip() if os.path.exists(A + '/.engine_rev') else ''
 DEPLOY_ERR = ''
+def banner(msg):  # quick note on the existing page while a long step runs
+    try:
+        pg = open(SITE + '/index.html').read(); import re as _re
+        pg = _re.sub(r'<p id="bn"[^>]*>.*?</p>', '', pg)
+        open(SITE + '/index.html', 'w').write(pg.replace('</h1>', f'</h1><p id="bn" style="color:#fc6">⏳ {msg}</p>', 1))
+    except Exception: pass
 if new and new != deployed:
+    banner(f'بيتم تحديث المحرك للنسخة {new[:7]} (دقايق)…')
     try:
         sh('git reset -q --hard origin/main', cwd=R)
         os.makedirs(A + '/engine/specs', exist_ok=True)
