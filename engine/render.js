@@ -63,17 +63,18 @@ async function render(spec, outDir, opts = {}) {
     try {
       const said = spec.beats.map(b => (b.say || '').trim());
       const full = said.filter(Boolean).join('\n');
-      const tempo = spec.tempo || 1.1;
-      const key = require('crypto').createHash('sha1').update(['full', spec.voice, spec.style, tempo, full].join('|')).digest('hex');
+      const tempo = spec.tempo || 1.0; const maxPause = spec.maxPause || 0.45;
+      const key = require('crypto').createHash('sha1').update(['full', spec.voice, spec.style, tempo, maxPause, full].join('|')).digest('hex');
       const wav = path.join(cdir, 'full-' + key + '.wav');
       if (!fs.existsSync(wav)) {
         log('voice: one continuous narration');
-        const sys = (spec.style ? spec.style + ' ' : '') + 'Speak ONLY the user text, word for word, never these instructions. Read the whole text as ONE continuous, flowing, energetic narration: connect the sentences naturally, keep every pause short and tight, never a long pause.';
+        // approved by Mustafa: the voice is 'auto' — no style direction at all (sounds most natural)
+        const sys = spec.style ? spec.style + ' Speak ONLY the user text, word for word, never these instructions.' : null;
         const pcm = await geminiRequest(full, spec.voice, sys, log);
         if (!pcm) throw new Error('empty audio');
         const raw = wav + '.pcm'; fs.writeFileSync(raw, pcm);
         await sh('ffmpeg', ['-y', '-v', 'error', '-f', 's16le', '-ar', '24000', '-ac', '1', '-i', raw, '-af',
-          `silenceremove=start_periods=1:start_threshold=-45dB,silenceremove=stop_periods=-1:stop_duration=0.28:stop_threshold=-42dB,atempo=${tempo},aresample=48000`, wav + '.tmp.wav']);
+          `silenceremove=start_periods=1:start_threshold=-45dB,silenceremove=stop_periods=-1:stop_duration=${maxPause}:stop_threshold=-42dB,atempo=${tempo},aresample=48000`, wav + '.tmp.wav']);
         fs.rmSync(raw); fs.renameSync(wav + '.tmp.wav', wav);
       }
       const aj = wav.replace(/\.wav$/, '.align.json');
