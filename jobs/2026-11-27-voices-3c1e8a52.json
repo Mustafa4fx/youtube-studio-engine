@@ -1,0 +1,7 @@
+{
+  "title": "🎙️ اختيار الصوت والأسلوب (عربي + إنجليزي)",
+  "kind": "script",
+  "script": "voices.js",
+  "name": "voices",
+  "retryMinutes": 5
+}

@@ -77,14 +77,21 @@ async function render(spec, outDir, opts = {}) {
         fs.rmSync(raw); fs.renameSync(wav + '.tmp.wav', wav);
       }
       const aj = wav.replace(/\.wav$/, '.align.json');
-      if (!fs.existsSync(aj)) {
-        log('voice: aligning words (whisper)');
-        const bj = wav + '.beats.json'; fs.writeFileSync(bj, JSON.stringify(said));
-        const o = await sh('python3', [path.join(__dirname, 'align.py'), wav, bj, (spec.lang || 'en').slice(0, 2), aj], { env: { ...process.env, WHISPER_DIR: path.join(cdir, '..', '_models') } });
-        log(String(o).trim());
+      let al = null;
+      try {
+        if (!fs.existsSync(aj)) {
+          log('voice: aligning words (whisper)');
+          const bj = wav + '.beats.json'; fs.writeFileSync(bj, JSON.stringify(said));
+          const o = await sh('python3', [path.join(__dirname, 'align.py'), wav, bj, (spec.lang || 'en').slice(0, 2), aj], { env: { ...process.env, WHISPER_DIR: path.join(cdir, '..', '_models') } });
+          log(String(o).trim().slice(-300));
+        }
+        al = JSON.parse(fs.readFileSync(aj, 'utf8'));
+        if (al.matched / Math.max(1, al.total_words) < 0.5) throw new Error(`alignment too weak (${al.matched}/${al.total_words})`);
+      } catch (e) {
+        // whisper not available/weak -> keep the SAME continuous narration and cut it at its real pauses
+        log('whisper failed (' + String(e.message).slice(-400).replace(/\s+/g, ' ') + ') -> cutting the continuous voice at its pauses');
+        al = await splitAtPauses(wav, said);
       }
-      const al = JSON.parse(fs.readFileSync(aj, 'utf8'));
-      if (al.matched / Math.max(1, al.total_words) < 0.5) throw new Error(`alignment too weak (${al.matched}/${al.total_words})`);
       const B = al.beats; const audioEnd = await duration(wav);
       // cut points: middle of the gap between consecutive spoken beats
       const starts = []; let prevEnd = 0;
@@ -137,7 +144,8 @@ async function render(spec, outDir, opts = {}) {
         // persistent voice cache: a sentence is synthesized once, ever (saves quota and time on re-renders)
         const cf = cacheOf(beat);
         if (!fs.existsSync(cf)) await tts({ text: beat.say, voice: spec.voice, lang: spec.lang, rate: beat.rate || spec.rate, out: cf + '.tmp.mp3', mock, provider: spec.provider, style: spec.style }).then(() => fs.renameSync(cf + '.tmp.mp3', cf));
-        fs.copyFileSync(cf, voiceFile);
+        if (continuousOk) fs.copyFileSync(cf, voiceFile);
+        else await sh('ffmpeg', ['-y', '-v', 'error', '-i', cf, '-af', 'silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=start_periods=1:start_threshold=-45dB,areverse,silenceremove=stop_periods=-1:stop_duration=0.25:stop_threshold=-42dB', '-b:a', '192k', voiceFile]).catch(() => fs.copyFileSync(cf, voiceFile));
       }
     }
     const lead = beat.lead ?? spec.lead ?? 0.06, pad = beat.pause ?? spec.pause ?? 0.12;
@@ -198,6 +206,27 @@ async function render(spec, outDir, opts = {}) {
   await sh('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', list, '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-c:a', 'aac', '-b:a', '192k', '-ar', '48000', '-movflags', '+faststart', out]);
   log('done ' + out);
   return out;
+}
+
+// Fallback alignment without Whisper: cut ONE continuous narration at its real pauses, matching each beat's share of the text
+async function splitAtPauses(wav, said) {
+  const total = await duration(wav);
+  const det = await new Promise(res => require('child_process').execFile('ffmpeg', ['-hide_banner', '-nostats', '-i', wav, '-af', 'silencedetect=noise=-36dB:d=0.09', '-f', 'null', '-'], { maxBuffer: 32 << 20 }, (e, o, er) => res(String(er || ''))));
+  const txt = String(det); const gaps = []; let st = null;
+  for (const line of txt.split('\n')) { let m = line.match(/silence_start: ([\d.]+)/); if (m) st = +m[1]; m = line.match(/silence_end: ([\d.]+)/); if (m && st != null) { gaps.push((st + +m[1]) / 2); st = null; } }
+  const w = said.map(t => [...(t || '')].length); const sum = w.reduce((a, b) => a + b, 0) || 1;
+  const spoken = said.map((t, i) => (t || '').trim() ? i : -1).filter(i => i >= 0);
+  const cuts = [0]; let acc = 0, used = -1;
+  for (let n = 0; n < spoken.length - 1; n++) {
+    acc += w[spoken[n]]; const exp = total * acc / sum;
+    let best = -1, bd = 1e9; for (let g = used + 1; g < gaps.length; g++) { const d = Math.abs(gaps[g] - exp); if (d < bd) { bd = d; best = g; } }
+    if (best >= 0 && bd < 1.6) { cuts.push(gaps[best]); used = best; } else cuts.push(Math.max(cuts[cuts.length - 1] + 0.3, exp));
+  }
+  cuts.push(total);
+  const beats = said.map(() => ({ start: null, end: null, words: [] }));
+  spoken.forEach((i, n) => { const a = cuts[n], b = cuts[n + 1];
+    beats[i] = { start: a, end: b, words: estimateWords(said[i], b - a).map(x => ({ w: x.w, s: a + x.s, e: a + x.e })) }; });
+  return { beats, matched: 1, total_words: 1, audio_end: total, method: 'pauses' };
 }
 
 async function renderSafe(spec, outDir, opts = {}) {

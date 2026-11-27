@@ -23,7 +23,7 @@ async function token() {
     const now = Math.floor(Date.now() / 1000); const b64 = o => Buffer.from(JSON.stringify(o)).toString('base64url');
     const unsigned = b64({ alg: 'RS256', typ: 'JWT' }) + '.' + b64({ iss: k.client_email, scope: 'https://www.googleapis.com/auth/cloud-platform', aud: 'https://oauth2.googleapis.com/token', iat: now, exp: now + 3600 });
     const sig = crypto.sign('RSA-SHA256', Buffer.from(unsigned), k.private_key).toString('base64url');
-    const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=' + unsigned + '.' + sig });
+    const r = await fetch('https://oauth2.googleapis.com/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, signal: AbortSignal.timeout(60000), body: 'grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=' + unsigned + '.' + sig });
     const j = await r.json(); if (!j.access_token) throw new Error('gcp auth ' + JSON.stringify(j).slice(0, 200));
     tok = { t: j.access_token, exp: Date.now() + 3500e3 }; return tok.t;
   }
@@ -31,19 +31,19 @@ async function token() {
   const j = await r.json(); tok = { t: j.access_token, exp: Date.now() + (j.expires_in - 60) * 1000 }; return tok.t;
 }
 async function api(url, opt = {}) {
-  const r = await fetch(url, { ...opt, headers: { Authorization: 'Bearer ' + await token(), 'Content-Type': 'application/json', ...(opt.headers || {}) } });
+  const r = await fetch(url, { signal: AbortSignal.timeout(120000), ...opt, headers: { Authorization: 'Bearer ' + await token(), 'Content-Type': 'application/json', ...(opt.headers || {}) } });
   const txt = await r.text(); let j; try { j = JSON.parse(txt); } catch (e) { j = { raw: txt }; }
   if (!r.ok) { const e = new Error(`${r.status} ${url.split('?')[0]} ${txt.slice(0, 300)}`); e.status = r.status; throw e; }
   return j;
 }
 const enc = encodeURIComponent;
 async function put(name, file) {
-  const r = await fetch(`https://storage.googleapis.com/upload/storage/v1/b/${BUCKET}/o?uploadType=media&name=${enc(name)}`, { method: 'POST', headers: { Authorization: 'Bearer ' + await token(), 'Content-Type': 'application/octet-stream' }, body: fs.readFileSync(file) });
+  const r = await fetch(`https://storage.googleapis.com/upload/storage/v1/b/${BUCKET}/o?uploadType=media&name=${enc(name)}`, { method: 'POST', signal: AbortSignal.timeout(900000), headers: { Authorization: 'Bearer ' + await token(), 'Content-Type': 'application/octet-stream' }, body: fs.readFileSync(file) });
   if (!r.ok) throw new Error('gcs upload ' + r.status + ' ' + (await r.text()).slice(0, 200));
 }
 async function putJson(name, obj) { const f = path.join(require('os').tmpdir(), 'up-' + crypto.randomBytes(4).toString('hex')); fs.writeFileSync(f, JSON.stringify(obj)); await put(name, f); fs.rmSync(f); }
 async function get(name, file) {
-  const r = await fetch(`https://storage.googleapis.com/storage/v1/b/${BUCKET}/o/${enc(name)}?alt=media`, { headers: { Authorization: 'Bearer ' + await token() } });
+  const r = await fetch(`https://storage.googleapis.com/storage/v1/b/${BUCKET}/o/${enc(name)}?alt=media`, { signal: AbortSignal.timeout(900000), headers: { Authorization: 'Bearer ' + await token() } });
   if (!r.ok) throw new Error('gcs download ' + r.status + ' ' + name);
   fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, Buffer.from(await r.arrayBuffer()));
 }

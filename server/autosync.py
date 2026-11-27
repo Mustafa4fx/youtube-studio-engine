@@ -17,15 +17,35 @@ def log(m):
         f.write(f'[{datetime.datetime.now():%Y-%m-%d %H:%M:%S}] {m}\n')
 
 
-def sh(cmd, cwd=None, out=None):
-    return subprocess.run(cmd, cwd=cwd, shell=True, stdout=out or subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+def sh(cmd, cwd=None, out=None, timeout=None):
+    try:
+        return subprocess.run(cmd, cwd=cwd, shell=True, stdout=out or subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=timeout, start_new_session=True)
+    except subprocess.TimeoutExpired as e:
+        log(f'TIMEOUT after {timeout}s: {cmd[:120]}')
+        return subprocess.CompletedProcess(cmd, 124, (e.stdout or '') if isinstance(e.stdout, str) else '', '')
 
 
-lock = open('/root/autosync.lock', 'w')
+LOCKF = '/root/autosync.lock'; INFO = '/root/autosync.lock.info'
+lock = open(LOCKF, 'a')
 try:
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
 except OSError:
-    sys.exit(0)  # previous run still busy (rendering)
+    # previous run still busy (rendering). If it has been stuck for hours, end it so the server never freezes again.
+    try:
+        pid, since = open(INFO).read().split()
+        if time.time() - float(since) > 7 * 3600:
+            log(f'previous run {pid} stuck since {datetime.datetime.fromtimestamp(float(since)):%H:%M} -> stopping it')
+            subprocess.run(f'pkill -TERM -P {pid}; kill -TERM {pid}; sleep 5; pkill -KILL -P {pid}; kill -KILL {pid}', shell=True)
+            sh('pkill -f "docker push"; pkill -f "cloud.js"')
+            time.sleep(3)
+            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        else:
+            sys.exit(0)
+    except SystemExit:
+        raise
+    except Exception:
+        sys.exit(0)
+open(INFO, 'w').write(f'{os.getpid()} {time.time()}')
 
 if not os.path.exists(SITE + '/index.html'):
     open(SITE + '/index.html', 'w').write('<meta charset="utf-8"><meta http-equiv="refresh" content="30"><body style="background:#07060D;color:#fff;font-family:sans-serif;direction:rtl;padding:20px"><h2 style="color:#D4FF3A">🎬 الفيديوهات</h2><p>المحرك بيتجهّز… الصفحة هتتحدّث لوحدها.</p>')
@@ -48,7 +68,7 @@ if new and new != deployed:
             put(os.path.join(R, 'specs', f), os.path.join(A, 'engine', 'specs', f))
         if os.path.exists(R + '/server/fonts.html'):
             shutil.copy(R + '/server/fonts.html', SITE + '/fonts.html')
-        b = sh('timeout 2400 docker compose build -q engine && docker compose up -d engine', cwd=A)
+        b = sh('timeout 2400 docker compose build -q engine && timeout 300 docker compose up -d engine', cwd=A, timeout=2800)
         if b.returncode == 0:
             open(A + '/.engine_rev', 'w').write(new)
             log(f'deployed {new[:7]}')
@@ -103,8 +123,8 @@ def cloud_deploy():
     if not rev: return
     if os.path.exists(A + '/.cloud_rev') and open(A + '/.cloud_rev').read().strip() == rev:
         CLOUD_MSG = '☁️ Cloud: شغال'; return
-    cid = sh('docker compose ps -q engine', cwd=A).stdout.strip()
-    img = sh('docker inspect --format "{{.Image}}" ' + cid).stdout.strip()
+    cid = sh('docker compose ps -q engine', cwd=A, timeout=60).stdout.strip()
+    img = sh('docker inspect --format "{{.Image}}" ' + cid, timeout=60).stdout.strip()
     pid = json.load(open(KEYF))['project_id']
     uri = f'{REGION}-docker.pkg.dev/{pid}/studio/engine:{rev[:12]}'
     log('cloud: pushing engine image ' + uri)
@@ -113,7 +133,7 @@ def cloud_deploy():
         if '☁️' not in pg: pg = pg.replace('</h1>', '</h1><p style=color:#9cf>☁️ Cloud: جاري رفع المحرك لجوجل (أول مرة بتاخد وقت)…</p>', 1)
         open(SITE + '/index.html', 'w').write(pg.replace('☁️ Cloud: مستني الإعداد', '☁️ Cloud: جاري رفع المحرك لجوجل (أول مرة بتاخد وقت)…'))
     except Exception: pass
-    r = sh(f'docker login -u _json_key --password-stdin https://{REGION}-docker.pkg.dev < {KEYF} && docker tag {img} {uri} && timeout 3600 docker push -q {uri} && docker compose exec -T engine node cloud.js deploy {uri}', cwd=A)
+    r = sh(f'timeout 60 docker login -u _json_key --password-stdin https://{REGION}-docker.pkg.dev < {KEYF} && docker tag {img} {uri} && timeout 3000 docker push -q {uri} && timeout 600 docker compose exec -T engine node cloud.js deploy {uri}', cwd=A, timeout=3700)
     if r.returncode == 0:
         open(A + '/.cloud_rev', 'w').write(rev); log('cloud deployed ' + uri); CLOUD_MSG = '☁️ Cloud: شغال'
     else:
@@ -122,7 +142,7 @@ def cloud_deploy():
 try:
     ensure_setup_keypair()
     if fetch_cloud_key():
-        sh('docker compose exec -T engine node cloud.js rm setup/keys.tgz', cwd=A)
+        sh('docker compose exec -T engine node cloud.js rm setup/keys.tgz', cwd=A, timeout=120)
     cloud_deploy()
 except Exception as e:
     log(f'cloud error {e}'); CLOUD_MSG = f'☁️ Cloud: خطأ {e}'
@@ -141,7 +161,9 @@ for name in sorted(os.listdir(jdir)) if os.path.isdir(jdir) else []:
         job = json.load(open(os.path.join(jdir, name)))
     except Exception as e:
         log(f'bad job {name}: {e}'); continue
-    job['_id'] = name[:-5]; jobs.append(job)
+    job['_id'] = name[:-5]
+    if job.get('kind') == 'script': job['specs'] = [job.get('name', 'out') + '.json']  # e.g. voice audition page
+    jobs.append(job)
 
 def write_page():
     cards = []
@@ -149,9 +171,9 @@ def write_page():
         jid = job['_id']; rows = []
         for spec in job.get('specs', []):
             base = os.path.basename(spec)[:-5]; s = status_of(f'{jid}/{base}')
-            d = os.path.join(SITE, jid, base); mp4 = [f for f in os.listdir(d) if f.endswith('.mp4')] if os.path.isdir(d) else []
+            d = os.path.join(SITE, jid, base); mp4 = [f for f in os.listdir(d) if f.endswith('.mp4') or (job.get('kind') == 'script' and f == 'index.html')] if os.path.isdir(d) else []
             if s.startswith('done') and mp4:
-                rows.append(f'<a class="ok" href="{jid}/{base}/{mp4[0]}">▶ {html.escape(base)}</a>')
+                rows.append(f'<a class="ok" href="{jid}/{base}/{mp4[0]}">{"🎙️ افتح واسمع" if job.get("kind") == "script" else "▶ " + html.escape(base)}</a>')
             else:
                 last = ''
                 lp = os.path.join(d, 'log.txt')
@@ -185,7 +207,9 @@ for job in jobs:
             continue
         log(f'render {jid} {base}')
         with open(st + '/log.txt', 'a') as lf:
-            pr = subprocess.Popen(f'docker compose exec -T engine node run.js /specs/{os.path.basename(spec)} /out/{out}', cwd=A, shell=True, stdout=lf, stderr=subprocess.STDOUT)
+            cmd = (f'docker compose exec -T engine node /specs/{job["script"]} /out/{out}' if job.get('kind') == 'script'
+                   else f'docker compose exec -T engine node run.js /specs/{os.path.basename(spec)} /out/{out}')
+            pr = subprocess.Popen(cmd, cwd=A, shell=True, stdout=lf, stderr=subprocess.STDOUT)
             t0 = time.time()
             while pr.poll() is None:  # refresh the status page every minute while rendering
                 time.sleep(60)
