@@ -14,7 +14,7 @@
  },
  "speed": 0.5,
  "provider": "gemini",
- "tempo": 1.0,
+ "tempo": 1.05,
  "continuous": true,
  "lead": 0,
  "pause": 0,
@@ -542,5 +542,6 @@
    ],
    "hl": []
   }
- ]
+ ],
+ "maxPause": 0.28
 }

@@ -63,7 +63,8 @@ async function render(spec, outDir, opts = {}) {
     try {
       const said = spec.beats.map(b => (b.say || '').trim());
       const full = said.filter(Boolean).join('\n');
-      const tempo = spec.tempo || 1.0; const maxPause = spec.maxPause || 0.45;
+      // APPROVED (Mustafa 27 Nov): Sadachbia auto + speed 1.05 + pauses trimmed to 0.28s
+      const tempo = spec.tempo || 1.05; const maxPause = spec.maxPause || 0.28;
       const key = require('crypto').createHash('sha1').update(['full', spec.voice, spec.style, tempo, spec.keepPauses ? 'keep' : maxPause, full].join('|')).digest('hex');
       const wav = path.join(cdir, 'full-' + key + '.wav');
       if (!fs.existsSync(wav)) {
