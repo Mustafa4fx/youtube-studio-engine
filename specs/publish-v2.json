@@ -1,0 +1,132 @@
+{
+ "title": "نشر فيديو 1 — ChatGPT يرشّح منافسك",
+ "settings": [
+  "الجمهور: No, it's not made for kids",
+  "الفئة (Category): Science & Technology",
+  "Altered or synthetic content: No (مفيش أشخاص أو مشاهد حقيقية متعدّلة)",
+  "لغة الفيديو: الإنجليزي للقناة الإنجليزية / العربي للقناة العربية",
+  "Visibility: Public (أو Schedule لو عايز تحدد وقت)"
+ ],
+ "langs": [
+  {
+   "code": "en",
+   "label": "🇬🇧 القناة الإنجليزية — Edge AI",
+   "dir": "ltr",
+   "font": "'Inter',sans-serif",
+   "bug": "EDGE AI",
+   "video": "../../2026-11-27-v2-chatgpt-hook1-7d4b2e91/v2-en/v2-edge-ai-chatgpt-business.mp4",
+   "q": "Best dentist in my city?",
+   "names": [
+    "Bright Smile Clinic",
+    "Downtown Dental Care",
+    "Pearl Dental Studio"
+   ],
+   "you": "Your business",
+   "them": "Your competitor",
+   "titles": [
+    "ChatGPT Recommends Your Competitor… Not You (Fix It in 4 Steps)",
+    "Why ChatGPT Ignores Your Business — And the 4-Step Fix",
+    "Ask ChatGPT This. If Your Name Is Missing, You're Losing Customers"
+   ],
+   "thumbs": [
+    {
+     "design": "list",
+     "text": "NOT ON<br>*THE LIST?*",
+     "size": 96
+    },
+    {
+     "design": "versus",
+     "text": "ChatGPT picks *THEM*",
+     "size": 92
+    },
+    {
+     "design": "empty",
+     "text": "WHERE'S *YOUR NAME?*",
+     "size": 96
+    }
+   ],
+   "description": "Ask ChatGPT for the best business in your city: it names three. If yours isn't one of them, you're losing customers right now. Here's why, and the 4-step fix.\n\nThe 4 steps:\n1) Ask ChatGPT about your business by name. Wrong or missing info = your gap.\n2) Claim your free profile in ChatGPT's Business Hub and fix your details.\n3) Keep the same name, address and hours everywhere: your site, Google, socials.\n4) Get specific reviews. Not just \"Great!\" but \"Best root canal in town.\"\n\nChatGPT doesn't pick the best business. It picks the one it understands.\n\nSource: OpenAI, Introducing businesses in ChatGPT: https://openai.com/index/introducing-businesses-in-chatgpt/\n\nEdge AI: AI, straight to the point. Subscribe so you don't miss the next one.\n\nStock media: Pixabay\n\n#ChatGPT #AI #SmallBusiness",
+   "tags": [
+    "ChatGPT",
+    "ChatGPT for business",
+    "ChatGPT Business Hub",
+    "AI search",
+    "AI visibility",
+    "get recommended by ChatGPT",
+    "local SEO",
+    "Google Business Profile",
+    "small business marketing",
+    "GEO",
+    "generative engine optimization",
+    "AI marketing"
+   ],
+   "hashtags": [
+    "#ChatGPT",
+    "#AI",
+    "#SmallBusiness",
+    "#AIMarketing",
+    "#LocalSEO"
+   ]
+  },
+  {
+   "code": "ar",
+   "label": "🇸🇦 القناة العربية — عالم الذكاء الاصطناعي",
+   "dir": "rtl",
+   "font": "'Alexandria',sans-serif",
+   "bug": "عالم الذكاء",
+   "video": "../../2026-11-27-v2-chatgpt-hook1-7d4b2e91/v2-ar/v2-ai-world-chatgpt-business.mp4",
+   "q": "أفضل طبيب أسنان في مدينتي؟",
+   "names": [
+    "عيادة الابتسامة",
+    "مركز داون تاون",
+    "استوديو بيرل"
+   ],
+   "you": "نشاطك",
+   "them": "منافسك",
+   "titles": [
+    "ChatGPT يرشّح منافسك… وليس أنت! (الحل في 4 خطوات)",
+    "لماذا يتجاهل ChatGPT نشاطك التجاري؟ وكيف تجعله يرشّحك",
+    "اسأل ChatGPT هذا السؤال… إن لم يظهر اسمك فأنت تخسر عملاء"
+   ],
+   "thumbs": [
+    {
+     "design": "list",
+     "text": "اسمك<br>*غير موجود؟*",
+     "size": 96
+    },
+    {
+     "design": "versus",
+     "text": "ChatGPT اختار *منافسك*",
+     "size": 86
+    },
+    {
+     "design": "empty",
+     "text": "أين *اسمك؟*",
+     "size": 110
+    }
+   ],
+   "description": "اسأل ChatGPT عن أفضل نشاط في مدينتك: سيذكر ثلاثة أسماء. إن لم يكن اسمك بينها، فأنت تخسر عملاء الآن. إليك السبب، والحل في 4 خطوات.\n\nالخطوات الأربع:\n1) اسأل ChatGPT عن نشاطك بالاسم. معلومة خاطئة أو ناقصة = فجوتك.\n2) سجّل ملفك المجاني في Business Hub داخل ChatGPT وصحّح بياناتك.\n3) نفس الاسم والعنوان والمواعيد في كل مكان: موقعك وGoogle والسوشيال.\n4) احصل على تقييمات محددة. ليس «رائع!» فقط، بل «أفضل علاج عصب في المدينة».\n\nChatGPT لا يختار الأفضل… بل يختار من يفهمه.\n\nالمصدر: OpenAI، Introducing businesses in ChatGPT: https://openai.com/index/introducing-businesses-in-chatgpt/\n\nعالم الذكاء الاصطناعي: مباشرة إلى النقطة. اشترك حتى لا يفوتك القادم.\n\nStock media: Pixabay\n\n#ChatGPT #الذكاء_الاصطناعي #تسويق",
+   "tags": [
+    "ChatGPT",
+    "شات جي بي تي",
+    "الذكاء الاصطناعي",
+    "ChatGPT للأعمال",
+    "Business Hub",
+    "الظهور في ChatGPT",
+    "تسويق المشاريع الصغيرة",
+    "السيو المحلي",
+    "Google Business Profile",
+    "التسويق بالذكاء الاصطناعي",
+    "AI",
+    "ChatGPT business"
+   ],
+   "hashtags": [
+    "#ChatGPT",
+    "#الذكاء_الاصطناعي",
+    "#تسويق",
+    "#ريادة_الأعمال",
+    "#مشاريع_صغيرة"
+   ]
+  }
+ ]
+}

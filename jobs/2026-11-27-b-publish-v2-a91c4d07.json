@@ -1,0 +1,8 @@
+{
+  "title": "🚀 نشر فيديو 1 — العناوين والوصف والصور المصغرة والهاشتاجات (EN + AR)",
+  "kind": "script",
+  "script": "publish.js",
+  "args": "/specs/publish-v2.json",
+  "name": "publish",
+  "retryMinutes": 5
+}

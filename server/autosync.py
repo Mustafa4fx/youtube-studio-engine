@@ -226,7 +226,7 @@ for job in jobs:
             continue
         log(f'render {jid} {base}')
         with open(st + '/log.txt', 'a') as lf:
-            cmd = (f'docker compose exec -T engine node /specs/{job["script"]} /out/{out}' if job.get('kind') == 'script'
+            cmd = (f'docker compose exec -T engine node /specs/{job["script"]} /out/{out} {job.get("args", "")}' if job.get('kind') == 'script'
                    else f'docker compose exec -T engine node run.js /specs/{os.path.basename(spec)} /out/{out}')
             pr = subprocess.Popen(cmd, cwd=A, shell=True, stdout=lf, stderr=subprocess.STDOUT)
             t0 = time.time()
