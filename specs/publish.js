@@ -1,7 +1,7 @@
 // Publish package: node /specs/publish.js <outDir> <package.json>
 // -> 3 thumbnails per language (1280x720 PNG, rendered with the real fonts) + index.html with copy buttons
 const fs = require('fs'); const path = require('path');
-const { chromium } = require('playwright');
+const { chromium } = require(fs.existsSync('/app/node_modules/playwright') ? '/app/node_modules/playwright' : 'playwright');
 const out = process.argv[2]; const pkgFile = process.argv[3] || '/specs/publish-v2.json';
 fs.mkdirSync(out, { recursive: true });
 fs.writeFileSync(path.join(out, 'status.txt'), 'rendering\n');
