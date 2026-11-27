@@ -25,7 +25,8 @@ def sh(cmd, cwd=None, out=None, timeout=None):
         return subprocess.CompletedProcess(cmd, 124, (e.stdout or '') if isinstance(e.stdout, str) else '', '')
 
 
-LOCKF = '/root/autosync.lock'; INFO = '/root/autosync.lock.info'
+CLOUD_MODE = '--cloud' in sys.argv  # background helper: pushes the engine to Google without blocking exports
+LOCKF = '/root/cloud.lock' if CLOUD_MODE else '/root/autosync.lock'; INFO = LOCKF + '.info'
 lock = open(LOCKF, 'a')
 try:
     fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -61,7 +62,7 @@ def banner(msg):  # quick note on the existing page while a long step runs
         pg = _re.sub(r'<p id="bn"[^>]*>.*?</p>', '', pg)
         open(SITE + '/index.html', 'w').write(pg.replace('</h1>', f'</h1><p id="bn" style="color:#fc6">⏳ {msg}</p>', 1))
     except Exception: pass
-if new and new != deployed:
+if not CLOUD_MODE and new and new != deployed:
     banner(f'بيتم تحديث المحرك للنسخة {new[:7]} (دقايق)…')
     try:
         sh('git reset -q --hard origin/main', cwd=R)
@@ -78,6 +79,7 @@ if new and new != deployed:
         b = sh('timeout 2400 docker compose build -q engine && timeout 300 docker compose up -d engine', cwd=A, timeout=2800)
         if b.returncode == 0:
             open(A + '/.engine_rev', 'w').write(new)
+            open(A + '/engine/specs/.engine_rev', 'w').write(new)
             log(f'deployed {new[:7]}')
         else:
             DEPLOY_ERR = 'build failed: ' + b.stdout[-300:]; log('BUILD FAILED\n' + b.stdout[-2000:])
@@ -135,24 +137,34 @@ def cloud_deploy():
     pid = json.load(open(KEYF))['project_id']
     uri = f'{REGION}-docker.pkg.dev/{pid}/studio/engine:{rev[:12]}'
     log('cloud: pushing engine image ' + uri)
-    try:
-        pg = open(SITE + '/index.html').read()
-        if '☁️' not in pg: pg = pg.replace('</h1>', '</h1><p style=color:#9cf>☁️ Cloud: جاري رفع المحرك لجوجل (أول مرة بتاخد وقت)…</p>', 1)
-        open(SITE + '/index.html', 'w').write(pg.replace('☁️ Cloud: مستني الإعداد', '☁️ Cloud: جاري رفع المحرك لجوجل (أول مرة بتاخد وقت)…'))
-    except Exception: pass
+    open('/root/cloud.status', 'w').write('☁️ Cloud: جاري رفع المحرك لجوجل (أول مرة بتاخد وقت) — التصدير شغال على السيرفر لحد ما يخلص')
     r = sh(f'timeout 60 docker login -u _json_key --password-stdin https://{REGION}-docker.pkg.dev < {KEYF} && docker tag {img} {uri} && timeout 3000 docker push -q {uri} && timeout 600 docker compose exec -T engine node cloud.js deploy {uri}', cwd=A, timeout=3700)
     if r.returncode == 0:
-        open(A + '/.cloud_rev', 'w').write(rev); log('cloud deployed ' + uri); CLOUD_MSG = '☁️ Cloud: شغال'
+        open(A + '/.cloud_rev', 'w').write(rev); open(A + '/engine/specs/.cloud_ready', 'w').write(rev); log('cloud deployed ' + uri); CLOUD_MSG = '☁️ Cloud: شغال'
     else:
         log('CLOUD DEPLOY FAILED\n' + r.stdout[-1500:]); CLOUD_MSG = '☁️ Cloud: خطأ في التجهيز — ' + r.stdout.strip()[-160:]
 
-try:
-    ensure_setup_keypair()
-    if fetch_cloud_key():
-        sh('docker compose exec -T engine node cloud.js rm setup/keys.tgz', cwd=A, timeout=120)
-    cloud_deploy()
-except Exception as e:
-    log(f'cloud error {e}'); CLOUD_MSG = f'☁️ Cloud: خطأ {e}'
+if CLOUD_MODE:
+    try:
+        ensure_setup_keypair()
+        if fetch_cloud_key():
+            sh('docker compose exec -T engine node cloud.js rm setup/keys.tgz', cwd=A, timeout=120)
+        cloud_deploy()
+    except Exception as e:
+        log(f'cloud error {e}'); CLOUD_MSG = f'☁️ Cloud: خطأ {e}'
+    open('/root/cloud.status', 'w').write(CLOUD_MSG or '')
+    sys.exit(0)
+else:
+    # the slow Google part runs in its own background process (own lock) so exports never wait for it
+    try:
+        ensure_setup_keypair()
+        erev = open(A + '/.engine_rev').read().strip() if os.path.exists(A + '/.engine_rev') else ''
+        crev = open(A + '/.cloud_rev').read().strip() if os.path.exists(A + '/.cloud_rev') else ''
+        if erev and erev != crev:
+            subprocess.Popen([sys.executable, os.path.abspath(__file__), '--cloud'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+        CLOUD_MSG = ('☁️ Cloud: شغال' if erev and erev == crev else (open('/root/cloud.status').read().strip() if os.path.exists('/root/cloud.status') else ('☁️ Cloud: مستني الإعداد' if not os.path.exists(KEYF) else '☁️ Cloud: بيتجهّز')))
+    except Exception as e:
+        log(f'cloud error {e}')
 
 # ---------- 2) jobs ----------
 def status_of(out_dir):
