@@ -64,7 +64,7 @@ async function render(spec, outDir, opts = {}) {
       const said = spec.beats.map(b => (b.say || '').trim());
       const full = said.filter(Boolean).join('\n');
       const tempo = spec.tempo || 1.0; const maxPause = spec.maxPause || 0.45;
-      const key = require('crypto').createHash('sha1').update(['full', spec.voice, spec.style, tempo, maxPause, full].join('|')).digest('hex');
+      const key = require('crypto').createHash('sha1').update(['full', spec.voice, spec.style, tempo, spec.keepPauses ? 'keep' : maxPause, full].join('|')).digest('hex');
       const wav = path.join(cdir, 'full-' + key + '.wav');
       if (!fs.existsSync(wav)) {
         log('voice: one continuous narration');
@@ -74,7 +74,7 @@ async function render(spec, outDir, opts = {}) {
         if (!pcm) throw new Error('empty audio');
         const raw = wav + '.pcm'; fs.writeFileSync(raw, pcm);
         await sh('ffmpeg', ['-y', '-v', 'error', '-f', 's16le', '-ar', '24000', '-ac', '1', '-i', raw, '-af',
-          `silenceremove=start_periods=1:start_threshold=-45dB,silenceremove=stop_periods=-1:stop_duration=${maxPause}:stop_threshold=-42dB,atempo=${tempo},aresample=48000`, wav + '.tmp.wav']);
+          [ 'silenceremove=start_periods=1:start_threshold=-45dB', spec.keepPauses ? null : `silenceremove=stop_periods=-1:stop_duration=${maxPause}:stop_threshold=-42dB`, tempo !== 1 ? `atempo=${tempo}` : null, 'aresample=48000' ].filter(Boolean).join(','), wav + '.tmp.wav']);
         fs.rmSync(raw); fs.renameSync(wav + '.tmp.wav', wav);
       }
       const aj = wav.replace(/\.wav$/, '.align.json');
